@@ -1,0 +1,163 @@
+﻿<Window x:Class="TNovViewsSheets.SheetNumWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TNovViewsSheets"
+             mc:Ignorable="d" Height="600" Width="400"
+        SizeToContent="WidthAndHeight" MinWidth="400" MinHeight="400"
+        
+            WindowStartupLocation="CenterScreen" 
+            Background="White" BorderBrush="#FF008E43" BorderThickness="1"
+            ResizeMode="NoResize" WindowStyle="None">
+    <Window.Resources>
+        <!-- Стиль с полным шаблоном -->
+        <Style x:Key="CustomButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- Убираем SystemColors -->
+                        <ControlTemplate.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" 
+                                         Color="Transparent"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" 
+                                         Color="Transparent"/>
+                        </ControlTemplate.Resources>
+
+                        <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <!-- Прямое указание цвета -->
+                                <Setter TargetName="border" 
+                                    Property="Background" 
+                                    Value="#FF008E43"/>
+                                <!-- Цвет заголовка -->
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" 
+                                    Property="Background" 
+                                    Value="#FF008E43"/>
+                                <!-- Темнее -->
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" 
+                                    Property="Opacity" 
+                                    Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="30"
+              ResizeBorderThickness="5"
+              GlassFrameThickness="0"
+              CornerRadius="0"/>
+    </WindowChrome.WindowChrome>
+    <Grid>
+        <!-- Верхняя панель (кастомный заголовок) -->
+        <Border Height="30" 
+                Background="#FF008E43" 
+                VerticalAlignment="Top"
+                MouseDown="Border_MouseDown">
+            <TextBlock Text="TNov - Менеджер листов" 
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       Margin="10,0"/>
+        </Border>
+
+        <!-- Основное содержимое -->
+        <Border Margin="0,30,0,0">
+
+            <StackPanel VerticalAlignment="Center" Margin="5">
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="343*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Выбор фильтра -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,27" Grid.RowSpan="2">
+                        <TextBlock Text="Комплект:" VerticalAlignment="Center" Margin="0,0,5,0" Width="55"/>
+                        <ComboBox x:Name="TypeComboBox" Width="150" SelectionChanged="TypeComboBox_SelectionChanged"/>
+                        <Button Style="{StaticResource CustomButtonStyle}" x:Name="ApplyFilterButton" Content="Отобразить" Margin="10,0,0,0" Click="ApplyFilterButton_Click" Width="100"/>
+                    </StackPanel>
+                    <!-- Начальный номер -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                        <TextBlock Text="Начальный номер:" VerticalAlignment="Center" Margin="0,0,5,0" Width="105" />
+                        <TextBox x:Name="StartOrderTextBox" Width="100" Height="20" VerticalAlignment="Center" Text="0" BorderBrush="#CCCCCC"/>
+                        <Button Style="{StaticResource CustomButtonStyle}" x:Name="RenumberButton" Content="Обновить" Margin="10,0,0,0" Width="100"
+                Padding="5,2" Click="RenumberButton_Click"/>
+                    </StackPanel>
+                    <!-- Текущий фильтр -->
+                    <TextBlock x:Name="CurrentFilterText" Grid.Row="2" Margin="0,5,0,5" FontWeight="Bold" Visibility="Hidden" Grid.ColumnSpan="2"/>
+
+                    <!-- ListView с поддержкой Drag&Drop -->
+                    <ListView x:Name="ItemsListView" Grid.Row="3" Height="420" HorizontalAlignment="Left" 
+              AllowDrop="True"
+              PreviewMouseLeftButtonDown="ListView_PreviewMouseLeftButtonDown"
+              Drop="ListView_Drop"
+              DragOver="ListView_DragOver" Grid.ColumnSpan="2">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Номер" Width="60" DisplayMemberBinding="{Binding TNovSheetNumericNumber}"/>
+                                <GridViewColumn Header="Имя листа" Width="300" >
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding TNovSheetName}" 
+                   TextWrapping="Wrap" 
+                   VerticalAlignment="Top"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <!-- Стиль для автоматического изменения высоты строк -->
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="VerticalContentAlignment" Value="Top"/>
+                                <Setter Property="Height" Value="Auto"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource CustomButtonStyle}" Content="Отмена" x:Name="escButton" IsCancel="True" Click="escButton_Click" MinWidth="100" MinHeight="25" Margin="5" />
+                    <Button Style="{StaticResource CustomButtonStyle}" Content="Применить" IsDefault="True" Click="acceptButton_Click" MinWidth="100" Margin="5"/>
+                </StackPanel>
+
+
+            </StackPanel>
+
+        </Border>
+    </Grid>
+
+
+
+</Window>

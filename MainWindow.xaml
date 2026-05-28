@@ -1,0 +1,315 @@
+﻿<Window x:Class="TNovViewsSheets.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="600" Width="950"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStyle="None"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="30"
+                  ResizeBorderThickness="5"
+                  GlassFrameThickness="0"
+                  CornerRadius="12"/>
+    </WindowChrome.WindowChrome>
+
+    <Border CornerRadius="12"
+            Background="White"
+            BorderBrush="#FF008E43"
+            BorderThickness="1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="55"/>
+                <ColumnDefinition Width="505"/>
+                <ColumnDefinition Width="331*"/>
+                <ColumnDefinition Width="57*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30 px"/>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                <Border Height="30" Background="#FF008E43" VerticalAlignment="Top" CornerRadius="12 0 0 0">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource RoundButtonStyle}" 
+Click="CloseButton_Click" Content="✕"
+HorizontalAlignment="Center" VerticalAlignment="Center"
+Width="20" Height="20" Margin="5,0"
+WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button Style="{StaticResource RoundButtonStyle2}" 
+Click="HelpButton_Click" Content="?"
+HorizontalAlignment="Center" VerticalAlignment="Center"
+Width="20" Height="20" Margin="0"
+WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    </StackPanel>
+                    
+                </Border>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                <Border Height="30" 
+    Background="#FF008E43" 
+    VerticalAlignment="Top"
+    MouseDown="Border_MouseDown">
+                    <TextBlock Text="Менеджер листов" 
+           Foreground="White"
+           VerticalAlignment="Center"
+           Margin="10,0"/>
+                </Border>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center" Grid.Row="0" Grid.Column="2">
+                <Border Height="30" 
+    Background="#FF008E43" 
+    VerticalAlignment="Top"
+    MouseDown="Border_MouseDown">
+
+                </Border>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center" Grid.Row="0" Grid.Column="4">
+                <Border Height="30" CornerRadius="0 12 0 0"
+    Background="#FF008E43" 
+    VerticalAlignment="Top"
+    MouseDown="Border_MouseDown">
+
+                </Border>
+            </StackPanel>
+            <!-- Левая панель с кнопками функций -->
+            <StackPanel Grid.Column="0" Background="#F0F0F0" Margin="0,0,1,0" Grid.Row="1" Height="550" VerticalAlignment="Top">
+                <Button x:Name="BtnStart" Width="40" Height="40" Margin="5" 
+            Click="BtnStart_Click" ToolTip="Главная" >
+                    <TextBlock Text="🏠" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <!-- Новая кнопка формирования комплектов и настройки префиксов -->
+                <Button x:Name="BtnSheetPrintSets" Width="40" Height="40" Margin="5" 
+    Click="BtnSheetPrintSets_Click" ToolTip="Комплекты листов и настройки префиксов">
+                    <TextBlock Text="☑" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <!-- Новая кнопка нумератора листов -->
+                <Button x:Name="BtnSheetNumbering" Width="40" Height="40" Margin="5" 
+            Click="BtnSheetNumbering_Click" ToolTip="Нумератор листов">
+                    <TextBlock Text="🔢" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+
+                <Button x:Name="BtnCreateMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnCreateMode_Click" ToolTip="Создание листов">
+                    <TextBlock Text="📄" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="BtnCreateViewMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnCreateViewMode_Click" ToolTip="Создание видов">
+                    <TextBlock Text="👁️" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <!--
+                <Button x:Name="BtnExportPdfMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnExportPdfMode_Click" ToolTip="Экспорт в PDF">
+                    <TextBlock Text="📑" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="BtnExportSchedulesMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnExportSchedulesMode_Click" ToolTip="Экспорт спецификаций в Excel">
+                    <TextBlock Text="📊" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="BtnImportExcelMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnImportExcelMode_Click" ToolTip="Импорт из Excel">
+                    <TextBlock Text="📥" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                -->
+                <Button x:Name="BtnCopyMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnCopyMode_Click" ToolTip="Копирование листа (без видов)">
+                    <TextBlock Text="📋" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                <!--
+                <Button x:Name="BtnDuplicateMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnDuplicateMode_Click" ToolTip="Дублирование листа с содержимым">
+                    <TextBlock Text="🔁" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+                 -->
+                <Button x:Name="BtnDeleteMode" Width="40" Height="40" Margin="5" 
+                        Click="BtnDeleteMode_Click" ToolTip="Удаление листов">
+                    <TextBlock Text="🗑️" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+
+
+                <!-- Новая кнопка просмотра фотографий -->
+                <Button x:Name="BtnPhotoView" Width="5" Height="5" Margin="5" 
+                        Click="BtnPhotoView_Click" ToolTip="Просмотр фотографий">
+                    <TextBlock Text="📷" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+
+            <!-- Центральная панель с контентом -->
+            <Border x:Name="FunctionBorder" Grid.Column="1" Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,5,5" Background="White">
+                <ContentControl x:Name="FunctionContent"/>
+            </Border>
+
+            <!-- Правая панель (общая) -->
+            <Grid x:Name="RightPanel" Grid.Column="2" Grid.Row="2" Margin="5,5,5,5" Visibility="Visible" Background="White" Grid.ColumnSpan="2">
+                <!-- Содержимое панелей (без изменений) -->
+                <Grid x:Name="SheetsPanel" Visibility="Visible" Margin="0,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,-4,0,5">
+                        <TextBlock Text="Фильтр по комплекту:" VerticalAlignment="Center" Margin="0,2,5,0"/>
+                        <ComboBox x:Name="CbFilterSet" Width="150" SelectionChanged="CbFilterSet_SelectionChanged" Height="20" Margin="0,5,0,0"/>
+                    </StackPanel>
+                    <ListView x:Name="LvSheets" Grid.Row="1" ItemsSource="{Binding SheetsView, RelativeSource={RelativeSource AncestorType=Window}}" SelectionMode="Extended" IsSynchronizedWithCurrentItem="True" Background="White" BorderBrush="LightGray" SelectionChanged="LvSheets_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Номер" Width="80" DisplayMemberBinding="{Binding SheetNumber}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Имя" Width="200" DisplayMemberBinding="{Binding Name}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Комплект" Width="100" DisplayMemberBinding="{Binding SheetSet}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+
+                <!-- Панель для видов -->
+                <Grid x:Name="ViewsPanel" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Существующие виды:" Margin="0,0,0,5" FontWeight="Bold"/>
+                    <ListView x:Name="LvViews" Grid.Row="1"
+                  ItemsSource="{Binding ViewsView, RelativeSource={RelativeSource AncestorType=Window}}"
+                  SelectionMode="Single"
+                  IsSynchronizedWithCurrentItem="True">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Имя" Width="250" DisplayMemberBinding="{Binding Name}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ViewColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Тип" Width="150" DisplayMemberBinding="{Binding ViewFamily}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ViewColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+
+                <!-- Панель для спецификаций (Excel) -->
+                <Grid x:Name="SchedulesPanel" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox x:Name="TbScheduleFilter" Width="200" TextChanged="ScheduleFilter_TextChanged"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                        <Button Content="Выбрать все видимые" Width="130" Margin="5" Click="SelectAllVisibleSchedules_Click"/>
+                        <Button Content="Снять выбор со всех видимых" Width="150" Margin="5" Click="DeselectAllVisibleSchedules_Click"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" x:Name="TbSelectedSchedulesCount" Text="Выбрано: 0" Margin="0,5" HorizontalAlignment="Center"/>
+                    <ListView x:Name="LvSchedules" Grid.Row="3"
+                  ItemsSource="{Binding SchedulesView, RelativeSource={RelativeSource AncestorType=Window}}"
+                  SelectionMode="Single">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Выбрать" Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Имя" Width="350" DisplayMemberBinding="{Binding Name}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <EventSetter Event="Click" Handler="ScheduleColumnHeader_Click"/>
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+
+                <!-- Панель для экспорта PDF (унифицированная, только листы) -->
+                <Grid x:Name="ExportPanel" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Фильтр по комплекту (только для листов) -->
+                    <StackPanel x:Name="ExportSheetFilterPanel" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="Фильтр по комплекту:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <ComboBox x:Name="CbExportFilterSet" Width="150" SelectionChanged="CbExportFilterSet_SelectionChanged"/>
+                    </StackPanel>
+
+                    <!-- Поиск по имени -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox x:Name="TbExportSearch" Width="200" TextChanged="TbExportSearch_TextChanged"/>
+                    </StackPanel>
+
+                    <!-- Кнопки выбора -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                        <Button Content="Выбрать все" Width="100" Margin="5" Click="ExportSelectAll_Click"/>
+                        <Button Content="Снять все" Width="100" Margin="5" Click="ExportDeselectAll_Click"/>
+                    </StackPanel>
+
+                    <!-- Список листов с чекбоксами -->
+                    <ListView x:Name="LvExport" Grid.Row="3"
+                  ItemsSource="{Binding ExportView, RelativeSource={RelativeSource AncestorType=Window}}"
+                  SelectionMode="Single">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Выбрать" Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Номер" Width="80" DisplayMemberBinding="{Binding SheetNumber}"/>
+                                <GridViewColumn Header="Имя" Width="250" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Комплект" Width="120" DisplayMemberBinding="{Binding SheetSet}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

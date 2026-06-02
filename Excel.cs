@@ -20,18 +20,46 @@ namespace TNovViewsSheets
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             System.IO.Directory.CreateDirectory(@"c:\\temp\");
-            string TNovClassName = "Excel"; DateTime dateTime = DateTime.Now; string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+
+            #region Исходные
+            DateTime dateTime = DateTime.Now;
+            string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string DBCommandName = "Excel";
             //подключение приложения и документа
             if (RevitAPI.UiApplication == null) { RevitAPI.Initialize(commandData); }
             UIDocument uidoc = RevitAPI.UiDocument; Document doc = RevitAPI.Document;
             UIApplication uiApp = RevitAPI.UiApplication; Autodesk.Revit.ApplicationServices.Application rvtApp = uiApp.Application;
-            
-            //проверка подключения, запись в журнал
-            if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
+            string docName = doc.Title.ToString(); docName = docName.Replace(",", " ");
+            string userName = rvtApp.Username; userName = userName.Replace(",", "");
+            string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
+            docName = docName.Replace(",", "");
+            #endregion
 
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion);
+
+            #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName,dateTime,TNovVersion);
-            
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
+
+            var viewModel0 = new AppVersionViewModel();
+
+            string jsonpath0 = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/TNovSettings.json");
+            viewModel0 = JsonConvert.DeserializeObject<AppVersionViewModel>(File.ReadAllText(jsonpath0));
+            if (viewModel0.extendedLogs)
+
+            {
+                var qViewModel = new QuestionWindowViewModel();
+                qViewModel.headtxt = "Включены расширенные логи. " +
+                    "Плагин будет работать медленнее, но соберет больше данных. " +
+                    "Выключить расширенные логи для ускорения работы?";
+                var qwpfview = new QuestionWindow280(qViewModel);
+                qViewModel.CloseRequest += (s, e) => qwpfview.Close();
+                bool? qok = qwpfview.ShowDialog();
+                if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log("Расширенные логи вкл", 2);
+            }
+            #endregion
+
 
             Logger.Log("Проверяем, открыта ли спецификация",1);
 
@@ -56,6 +84,8 @@ namespace TNovViewsSheets
                 TextQualifier = ExportTextQualifier.DoubleQuote,
                 FieldDelimiter = ","
             };
+
+            #region Диалог
 
             Logger.Log("Диалоговое окно",1);
             //Вьюмодель (без открытия окна)
@@ -91,9 +121,12 @@ namespace TNovViewsSheets
 
             int scenario = 1; if (viewModel.sc2) scenario = 2; else if(viewModel.sc3) scenario = 3;
 
+            #endregion
+
             switch (scenario)
             {
                 case 1:
+                    #region Сценарий 1: новая книга в отдельном Excel
                     try
                     {
                         Logger.Log("Экспортируем вид в Excel",1);
@@ -133,46 +166,50 @@ namespace TNovViewsSheets
                         // show menu bars
                         xlApp.Visible = true;
 
-                        Logger.Log("Импорт текстового файла",1);
+                        Logger.Log("Импорт текстового файла", 1);
 
-                        // import txt file into worksheet starting at cell at column A
-                        xlQuery = xlWorkSheet.QueryTables.Add(
-                            "TEXT;" + @"c:\temp\" + curview.Name + ".txt",
-                            xlWorkSheet.get_Range("A1", "A" + xlRowLast(xlWorkSheet)));
-                        xlWorkSheet.QueryTables[1].Name = curview.Name;
-                        xlWorkSheet.QueryTables[1].FieldNames = true;
-                        xlWorkSheet.QueryTables[1].RowNumbers = false;
-                        xlWorkSheet.QueryTables[1].FillAdjacentFormulas = false;
-                        xlWorkSheet.QueryTables[1].PreserveFormatting = true;
-                        xlWorkSheet.QueryTables[1].RefreshOnFileOpen = false;
-                        xlWorkSheet.QueryTables[1].RefreshStyle = XlCellInsertionMode.xlInsertDeleteCells;
-                        xlWorkSheet.QueryTables[1].SavePassword = false;
-                        xlWorkSheet.QueryTables[1].SaveData = true;
-                        xlWorkSheet.QueryTables[1].AdjustColumnWidth = true;
-                        xlWorkSheet.QueryTables[1].RefreshPeriod = 0;
-                        xlWorkSheet.QueryTables[1].TextFilePromptOnRefresh = false;
-                        xlWorkSheet.QueryTables[1].TextFilePlatform = 65001;
-                        xlWorkSheet.QueryTables[1].TextFileStartRow = 1;
-                        xlWorkSheet.QueryTables[1].TextFileParseType = XlTextParsingType.xlDelimited;
-                        xlWorkSheet.QueryTables[1].TextFileTextQualifier = XlTextQualifier.xlTextQualifierDoubleQuote;
-                        xlWorkSheet.QueryTables[1].TextFileConsecutiveDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileTabDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileSemicolonDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileCommaDelimiter = true;
-                        xlWorkSheet.QueryTables[1].TextFileSpaceDelimiter = false;
-                        /*xlWorkSheet.QueryTables[1].TextFileColumnDataTypes = columnDataTypes;*/
-                        xlQuery.RefreshStyle = Microsoft.Office.Interop.Excel.XlCellInsertionMode.xlInsertEntireRows;
-                        xlQuery.Refresh(false); // false means refresh but not return until refresh is finished 
-                        xlQuery.Delete(); // delete the query
+                        // 1. Определяем количество колонок (по заголовку CSV)
+                        string[] headerFields = File.ReadAllLines(@"c:\temp\" + curview.Name + ".txt")[0].Split(',');
+                        int columnCount = headerFields.Length;
 
-                        Logger.Log("Удаляем текстовый файл",1);
+                        // 2. Массив FieldInfo: для каждой колонки тип = текст (2)
+                        int[,] fieldInfo = new int[columnCount, 2];
+                        for (int i = 0; i < columnCount; i++)
+                        {
+                            fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
+                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
+                        }
 
-                        // delete txt file
+                        // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
+                        xlApp.Workbooks.OpenText(
+                            Filename: @"c:\temp\" + curview.Name + ".txt",
+                            Origin: 65001,                                       // UTF-8
+                            StartRow: 1,
+                            DataType: XlTextParsingType.xlDelimited,
+                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            Comma: true,
+                            FieldInfo: fieldInfo);
+
+                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+
+                        // 4. Копируем данные с временного листа на целевой лист
+                        Worksheet tempSheet = tempBook.Worksheets[1];
+                        Range usedRange = tempSheet.UsedRange;
+                        usedRange.Copy(xlWorkSheet.Range["A1"]);
+
+                        // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
+                        tempBook.Close(false);
+                        Marshal.ReleaseComObject(tempSheet);
+                        Marshal.ReleaseComObject(tempBook);
+
+                        Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");
                     }
                     catch (Exception ex) { Logger.Log("Ошибка:" + ex.Message,4); }
+                    #endregion
                     break;
                 case 2:
+                    #region Сценарий 2: Новая книга в открытом Excel
                     try
                     {
                         Logger.Log("Экспортируем вид в Excel",1);
@@ -223,49 +260,52 @@ namespace TNovViewsSheets
                         // show menu bars
                         xlApp.Visible = true;
 
-                        Logger.Log("Импорт текстового файла",1);
+                        Logger.Log("Импорт текстового файла", 1);
 
-                        // import txt file into worksheet starting at cell at column A
-                        xlQuery = xlWorkSheet.QueryTables.Add(
-                            "TEXT;" + @"c:\temp\" + curview.Name + ".txt",
-                            xlWorkSheet.get_Range("A1", "A" + xlRowLast(xlWorkSheet)));
-                        xlWorkSheet.QueryTables[1].Name = curview.Name;
-                        xlWorkSheet.QueryTables[1].FieldNames = true;
-                        xlWorkSheet.QueryTables[1].RowNumbers = false;
-                        xlWorkSheet.QueryTables[1].FillAdjacentFormulas = false;
-                        xlWorkSheet.QueryTables[1].PreserveFormatting = true;
-                        xlWorkSheet.QueryTables[1].RefreshOnFileOpen = false;
-                        xlWorkSheet.QueryTables[1].RefreshStyle = XlCellInsertionMode.xlInsertDeleteCells;
-                        xlWorkSheet.QueryTables[1].SavePassword = false;
-                        xlWorkSheet.QueryTables[1].SaveData = true;
-                        xlWorkSheet.QueryTables[1].AdjustColumnWidth = true;
-                        xlWorkSheet.QueryTables[1].RefreshPeriod = 0;
-                        xlWorkSheet.QueryTables[1].TextFilePromptOnRefresh = false;
-                        xlWorkSheet.QueryTables[1].TextFilePlatform = 65001;
-                        xlWorkSheet.QueryTables[1].TextFileStartRow = 1;
-                        xlWorkSheet.QueryTables[1].TextFileParseType = XlTextParsingType.xlDelimited;
-                        xlWorkSheet.QueryTables[1].TextFileTextQualifier = XlTextQualifier.xlTextQualifierDoubleQuote;
-                        xlWorkSheet.QueryTables[1].TextFileConsecutiveDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileTabDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileSemicolonDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileCommaDelimiter = true;
-                        xlWorkSheet.QueryTables[1].TextFileSpaceDelimiter = false;
-                        /*xlWorkSheet.QueryTables[1].TextFileColumnDataTypes = columnDataTypes;*/
-                        xlQuery.RefreshStyle = Microsoft.Office.Interop.Excel.XlCellInsertionMode.xlInsertEntireRows;
-                        xlQuery.Refresh(false); // false means refresh but not return until refresh is finished 
-                        xlQuery.Delete(); // delete the query
+                        // 1. Определяем количество колонок (по заголовку CSV)
+                        string[] headerFields = File.ReadAllLines(@"c:\temp\" + curview.Name + ".txt")[0].Split(',');
+                        int columnCount = headerFields.Length;
 
-                        Logger.Log("Удаляем текстовый файл",1);
+                        // 2. Массив FieldInfo: для каждой колонки тип = текст (2)
+                        int[,] fieldInfo = new int[columnCount, 2];
+                        for (int i = 0; i < columnCount; i++)
+                        {
+                            fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
+                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
+                        }
 
-                        // delete txt file
+                        // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
+                        xlApp.Workbooks.OpenText(
+                            Filename: @"c:\temp\" + curview.Name + ".txt",
+                            Origin: 65001,                                       // UTF-8
+                            StartRow: 1,
+                            DataType: XlTextParsingType.xlDelimited,
+                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            Comma: true,
+                            FieldInfo: fieldInfo);
+
+                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+
+                        // 4. Копируем данные с временного листа на целевой лист
+                        Worksheet tempSheet = tempBook.Worksheets[1];
+                        Range usedRange = tempSheet.UsedRange;
+                        usedRange.Copy(xlWorkSheet.Range["A1"]);
+
+                        // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
+                        tempBook.Close(false);
+                        Marshal.ReleaseComObject(tempSheet);
+                        Marshal.ReleaseComObject(tempBook);
+
+                        Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");
 
 
                     }
                     catch (Exception ex) { Logger.Log("Ошибка:" + ex.Message, 4); }
+                    #endregion
                     break;
-
                 case 3:
+                    #region Сценарий 3: Новая страница в открытой книге Excel
                     try
                     {
                         Logger.Log("Экспортируем вид в Excel",1);
@@ -326,54 +366,48 @@ namespace TNovViewsSheets
                         // show menu bars
                         xlApp.Visible = true;
 
+
                         Logger.Log("Импорт текстового файла", 1);
 
-                        // import txt file into worksheet starting at cell at column A
-                        xlQuery = xlWorkSheet.QueryTables.Add(
-                            "TEXT;" + @"c:\temp\" + curview.Name + ".txt",
-                            xlWorkSheet.get_Range("A1", "A" + xlRowLast(xlWorkSheet)));
-                        xlWorkSheet.QueryTables[1].Name = curview.Name;
-                        xlWorkSheet.QueryTables[1].FieldNames = true;
-                        xlWorkSheet.QueryTables[1].RowNumbers = false;
-                        xlWorkSheet.QueryTables[1].FillAdjacentFormulas = false;
-                        xlWorkSheet.QueryTables[1].PreserveFormatting = true;
-                        xlWorkSheet.QueryTables[1].RefreshOnFileOpen = false;
-                        xlWorkSheet.QueryTables[1].RefreshStyle = XlCellInsertionMode.xlInsertDeleteCells;
-                        xlWorkSheet.QueryTables[1].SavePassword = false;
-                        xlWorkSheet.QueryTables[1].SaveData = true;
-                        xlWorkSheet.QueryTables[1].AdjustColumnWidth = true;
-                        xlWorkSheet.QueryTables[1].RefreshPeriod = 0;
-                        xlWorkSheet.QueryTables[1].TextFilePromptOnRefresh = false;
-                        xlWorkSheet.QueryTables[1].TextFilePlatform = 65001;
-                        xlWorkSheet.QueryTables[1].TextFileStartRow = 1;
-                        xlWorkSheet.QueryTables[1].TextFileParseType = XlTextParsingType.xlDelimited;
-                        xlWorkSheet.QueryTables[1].TextFileTextQualifier = XlTextQualifier.xlTextQualifierDoubleQuote;
-                        xlWorkSheet.QueryTables[1].TextFileConsecutiveDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileTabDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileSemicolonDelimiter = false;
-                        xlWorkSheet.QueryTables[1].TextFileCommaDelimiter = true;
-                        xlWorkSheet.QueryTables[1].TextFileSpaceDelimiter = false;
-                        /*xlWorkSheet.QueryTables[1].TextFileColumnDataTypes = columnDataTypes;*/
-                        xlQuery.RefreshStyle = Microsoft.Office.Interop.Excel.XlCellInsertionMode.xlInsertEntireRows;
-                        xlQuery.Refresh(false); // false means refresh but not return until refresh is finished 
-                        xlQuery.Delete(); // delete the query
+                        // 1. Определяем количество колонок (по заголовку CSV)
+                        string[] headerFields = File.ReadAllLines(@"c:\temp\" + curview.Name + ".txt")[0].Split(',');
+                        int columnCount = headerFields.Length;
 
-                        xlApp.WindowState = XlWindowState.xlNormal; xlApp.Visible = true;
-
-                        if (xlApp != null)
-                            Marshal.ReleaseComObject(xlApp);
-                        if (xlWorkBook != null)
+                        // 2. Массив FieldInfo: для каждой колонки тип = текст (2)
+                        int[,] fieldInfo = new int[columnCount, 2];
+                        for (int i = 0; i < columnCount; i++)
                         {
-                            Marshal.ReleaseComObject(xlWorkBook);
-                            Marshal.ReleaseComObject(xlWorkSheet);
+                            fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
+                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
                         }
 
-                        Logger.Log("Удаляем текстовый файл", 1);
+                        // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
+                        xlApp.Workbooks.OpenText(
+                            Filename: @"c:\temp\" + curview.Name + ".txt",
+                            Origin: 65001,                                       // UTF-8
+                            StartRow: 1,
+                            DataType: XlTextParsingType.xlDelimited,
+                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            Comma: true,
+                            FieldInfo: fieldInfo);
 
-                        // delete txt file
+                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+
+                        // 4. Копируем данные с временного листа на целевой лист
+                        Worksheet tempSheet = tempBook.Worksheets[1];
+                        Range usedRange = tempSheet.UsedRange;
+                        usedRange.Copy(xlWorkSheet.Range["A1"]);
+
+                        // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
+                        tempBook.Close(false);
+                        Marshal.ReleaseComObject(tempSheet);
+                        Marshal.ReleaseComObject(tempBook);
+
+                        Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");
                     }
                     catch (Exception ex) { Logger.Log("Ошибка:" + ex.Message,4); }
+                    #endregion
                     break;
             }
 

@@ -33,25 +33,33 @@ namespace TNovViewsSheets
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            string TNovClassName = "Изменения"; DateTime dateTime = DateTime.Now; string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            #region Исходные
+            DateTime dateTime = DateTime.Now;
+            string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string DBCommandName = "Изменения";
             //подключение приложения и документа
             if (RevitAPI.UiApplication == null) { RevitAPI.Initialize(commandData); }
             UIDocument uidoc = RevitAPI.UiDocument; Document doc = RevitAPI.Document;
             UIApplication uiApp = RevitAPI.UiApplication; Autodesk.Revit.ApplicationServices.Application rvtApp = uiApp.Application;
-            
-            //проверка подключения, запись в журнал
-            if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
+            string docName = doc.Title.ToString(); docName = docName.Replace(",", " ");
+            string userName = rvtApp.Username; userName = userName.Replace(",", "");
+            string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
+            docName = docName.Replace(",", "");
+            #endregion
 
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion);
+
+            #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName,dateTime,TNovVersion);
-            
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
 
             var viewModel0 = new AppVersionViewModel();
-            
-            string jsonpath0 = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/TNovSettings.json"); 
+
+            string jsonpath0 = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/TNovSettings.json");
             viewModel0 = JsonConvert.DeserializeObject<AppVersionViewModel>(File.ReadAllText(jsonpath0));
-            if (viewModel0.extendedLogs) 
-            
+            if (viewModel0.extendedLogs)
+
             {
                 var qViewModel = new QuestionWindowViewModel();
                 qViewModel.headtxt = "Включены расширенные логи. " +
@@ -60,10 +68,11 @@ namespace TNovViewsSheets
                 var qwpfview = new QuestionWindow280(qViewModel);
                 qViewModel.CloseRequest += (s, e) => qwpfview.Close();
                 bool? qok = qwpfview.ShowDialog();
-                if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log( "Расширенные логи вкл", 2);
+                if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log("Расширенные логи вкл", 2);
             }
+            #endregion
 
-
+            #region Сбор элементов
             Logger.Log("Сбор элементов", 1);
             //получаем элементы
 
@@ -81,8 +90,9 @@ namespace TNovViewsSheets
             .WhereElementIsNotElementType()
             .Cast<Revision>()
             .ToList();
+            #endregion
 
-            //параметры
+            #region Параметры
             Guid adskCommparamGuid = new Guid("a85b7661-26b0-412f-979c-66af80b4b2c3");//ADSK_Примечание
             Guid comm2paramGuid = new Guid("7243f857-6292-45a1-8727-26ea5b09f450");//Примечание
             List <Guid> NChangeLinePars1 = new List<Guid>() //N_Изм.СтрокаXX.Кол.уч.
@@ -105,13 +115,15 @@ namespace TNovViewsSheets
                 new Guid("4fdd5ee2-5ca9-4bd7-b7a4-7102084e1262"), new Guid("8ff1fd64-b4db-4549-8cdb-bdc8693e640e"),
                 new Guid("d550c5c9-777e-4bbd-b394-79a85161eca8"), new Guid("7f13f8e5-ad02-486d-b4d1-1ade7a2d2e5f")
             };
+            #endregion
 
+            #region Диалог
             Logger.Log("Диалоговое окно",1);
             //Диалог
             var viewModel = new ChangesViewModel(); //....//нужна опция для выбранных (с фильтром по классу ViewSheet)
             // Десериализация
             bool forProject = true;
-            json js = new json(in TNovClassName, in forProject, out bool canserialize, out string jsonpath);
+            json js = new json(in DBCommandName, in forProject, out bool canserialize, out string jsonpath);
             if (canserialize)
             {
                 viewModel = JsonConvert.DeserializeObject<ChangesViewModel>(File.ReadAllText(jsonpath));
@@ -128,6 +140,7 @@ namespace TNovViewsSheets
                 Logger.Log("Сериализация прошла успешно",1);
             }
             catch (Exception ex) { Logger.Log("Ошибка при сериализации: " + ex.Message,4); }
+            #endregion
 
             Logger.Log("Проверяем, является ли открытый вид листом", 2);
 
@@ -150,7 +163,9 @@ namespace TNovViewsSheets
             //настройки нумерации изменений в проекте
             RevisionSettings revSettings = RevisionSettings.GetRevisionSettings(doc);
 
+            bool unhandledError = false;
 
+            #region Основной код. Пометочные облака
             using (Transaction t = new Transaction(doc))
             {
                 if (clouds.Count>0)
@@ -167,6 +182,7 @@ namespace TNovViewsSheets
                     }
                     ElementId activeViewId = v.Id;
 
+                    try { 
                     //обработка элементов
                     t.Start("TNov - Пометочные облака");
                     Logger.Log("Открываем транзакцию 1 (пометочные облака)",1);
@@ -245,21 +261,28 @@ namespace TNovViewsSheets
                     }
 
                     t.Commit(); Logger.Log("Закрываем транзакцию 1",1);
-
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log("Ошибка: " + ex.Message, 4);
+                        new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
+                        unhandledError = true;
+                    }
 
 
                 }
             }
-
+            #endregion
             /*
             //Заполнение параметров листов
             if (ViewSheetList.Count > 0)
             {
                 sheets = ViewSheetList; //сценарий "выбранные"
             }*/
-
+            #region Основной код. Параметры листов
             using (Transaction t2 = new Transaction(doc))
             {
+                try { 
                 t2.Start("TNov - заполнение параметров листов"); Logger.Log("Открываем транзакцию 2 (параметры листов)",1);
 
                 foreach (ViewSheet viewSheet in sheets) 
@@ -496,23 +519,22 @@ namespace TNovViewsSheets
 
                 }
                 t2.Commit(); Logger.Log("Закрываем транзакцию 2",1);
-
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("Ошибка: " + ex.Message, 4);
+                    new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
+                    unhandledError = true;
+                }
             }
-
-            
+            #endregion
+            if (unhandledError)
+            {
+                Logger.Log("Завершение работы с ошибками.", 4);
+                return Result.Succeeded;
+            }
             Logger.Log("Завершение работы.",5);
             return Result.Succeeded;
-        }
-        private static List<ViewSheet> GetViewSheetsFromCurrentSelection(Autodesk.Revit.DB.Document doc, Autodesk.Revit.UI.Selection.Selection sel)
-        {
-            ICollection<ElementId> elementIds = sel.GetElementIds();
-            List<ViewSheet> currentSelection = new List<ViewSheet>();
-            foreach (ElementId elementId in (IEnumerable<ElementId>)elementIds)
-            {
-                if (doc.GetElement(elementId) is ViewSheet && doc.GetElement(elementId).Category != null && doc.GetElement(elementId).Category.Id.IntegerValue.Equals(-2003100))
-                    currentSelection.Add(doc.GetElement(elementId) as ViewSheet);
-            }
-            return currentSelection;
         }
     }
 }

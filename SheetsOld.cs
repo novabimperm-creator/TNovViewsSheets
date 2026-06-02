@@ -112,7 +112,7 @@ namespace TNovViewsSheets
             UIApplication uiApp = RevitAPI.UiApplication; Autodesk.Revit.ApplicationServices.Application rvtApp = uiApp.Application;
             
             //проверка подключения, запись в журнал
-            if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
+            //if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
 
             // создание log - файла
             Logger.Initialize(TNovClassName,dateTime,TNovVersion);

@@ -95,6 +95,7 @@ namespace TNovViewsSheets
                 #endregion
 
                 #region Диалог
+                
                 // 3. Show selection dialog.
                 var window = new SheetSelectionWindow(doc, sheets, setupNames);
                 new WindowInteropHelper(window) { Owner = uiApp.MainWindowHandle };
@@ -108,6 +109,14 @@ namespace TNovViewsSheets
 
                 Logger.Log($"Export: pdf={options.ExportPdf} dwg={options.ExportDwg} " +
                               $"sheets={options.SelectedSheets.Count} -> {options.OutputBasePath}");
+                //Сериализация
+                json js = new json("Экспорт листов", true, out bool canserialize, out string jsonpath);
+                try
+                {
+                    File.WriteAllText(jsonpath, JsonConvert.SerializeObject(options));
+                    Logger.Log("Сериализация прошла успешно", 1);
+                }
+                catch (Exception ex) { Logger.Log("Ошибка при сериализации: " + ex.Message, 4); }
                 #endregion
 
                 #region Экспорт

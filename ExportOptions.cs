@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Autodesk.Revit.DB;
+using Newtonsoft.Json;
 
 namespace TNovViewsSheets
 {
@@ -8,7 +9,7 @@ namespace TNovViewsSheets
     /// </summary>
     public class ExportOptions
     {
-        public List<SheetItem> SelectedSheets { get; set; } = new List<SheetItem>();
+        [JsonIgnore] public List<SheetItem> SelectedSheets { get; set; } = new List<SheetItem>();
 
         // Output path WITHOUT extension. The pipeline appends ".dwg" / ".pdf" as
         // needed so a single user-picked basename can produce one or both formats.

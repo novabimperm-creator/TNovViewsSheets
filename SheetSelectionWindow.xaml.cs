@@ -1,3 +1,5 @@
+using Autodesk.Revit.DB;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Autodesk.Revit.DB;
+using TNovCommon;
 using Binding = System.Windows.Data.Binding;
 using MessageBox = System.Windows.MessageBox;
 using WpfVisibility = System.Windows.Visibility;
@@ -59,6 +61,31 @@ namespace TNovViewsSheets
 
             UpdateCountLabel();
             ApplySort("SheetNumber", ListSortDirection.Ascending);
+
+            // Десериализация
+            ExportOptions options = new ExportOptions();
+            json js = new json("Экспорт листов", true, out bool canserialize, out string jsonpath);
+            if (canserialize)
+            {
+                options = JsonConvert.DeserializeObject<ExportOptions>(File.ReadAllText(jsonpath));
+                Logger.Log("Десериализация прошла успешно", 1);
+            }
+            FormatDwg.IsChecked = options.ExportDwg;
+            FormatPdf.IsChecked = options.ExportPdf;
+            ExportColorMode colors = options.Colors;
+            foreach(var colorMode in ColorModeCombo.Items)
+            {
+                if(colorMode is ComboBoxItem cbi && cbi.Tag is string tag&&Enum.TryParse(tag,out ExportColorMode parsed) && parsed == colors)
+                {
+                    ColorModeCombo.SelectedItem = cbi; break;
+                }
+            }
+            PdfColor.IsChecked = options.PdfColor;
+            PdfRastr.IsChecked = options.PdfRastr;
+            PdfQuality.IsChecked = options.PdfQuality;
+            if (options.PdfFitToSheetSize) PdfFitToSheet.IsChecked = true; else PdfFitToSheet.IsChecked = false;
+
+
         }
 
         private void PreviewGroup_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

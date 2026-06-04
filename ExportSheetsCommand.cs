@@ -116,6 +116,7 @@ namespace TNovViewsSheets
                 // пользователь случайно выделил лист/элементы перед запуском
                 // плагина — подсветка попадала в готовый PDF.
                 uidoc.Selection.SetElementIds(new List<ElementId>());
+                uidoc.RefreshActiveView();
 
                 // PDF first — no external dependency, fast, and if AutoCAD is missing
                 // we at least leave the user with the PDF.
@@ -142,7 +143,7 @@ namespace TNovViewsSheets
                     Logger.Log("Завершение работы с ошибкой: " + message, 4);
                     return Result.Failed;
                 }
-                string folderPath = Path.GetDirectoryName(pdfPath);
+                string folderPath = Path.GetDirectoryName(options.OutputBasePath);
                 Process.Start("explorer.exe", folderPath);
                 new InfoWindow400("Готово:\n" + string.Join("\n", produced)).ShowDialog();
 
@@ -152,7 +153,7 @@ namespace TNovViewsSheets
             catch (Exception ex)
             {
                 message = ex.Message;
-                new InfoWindow400("Экспорт листов — ошибка: " +ex.Message);
+                new InfoWindow400("Экспорт листов — ошибка: " + ex.Message).ShowDialog();
                 Logger.Log("Завершение работы с ошибкой: " +ex.Message, 4);
                 return Result.Failed;
             }

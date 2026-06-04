@@ -111,6 +111,12 @@ namespace TNovViewsSheets
                 #endregion
 
                 #region Экспорт
+                // Снимаем активное выделение перед экспортом: Revit запекает
+                // selection highlight выделенных элементов в PDF/печать. Если
+                // пользователь случайно выделил лист/элементы перед запуском
+                // плагина — подсветка попадала в готовый PDF.
+                uidoc.Selection.SetElementIds(new List<ElementId>());
+
                 // PDF first — no external dependency, fast, and if AutoCAD is missing
                 // we at least leave the user with the PDF.
 

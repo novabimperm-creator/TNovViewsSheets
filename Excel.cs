@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using System.IO;
 using TNovCommon;
+using System.Globalization;
 
 namespace TNovViewsSheets
 {
@@ -202,6 +203,34 @@ namespace TNovViewsSheets
                         Marshal.ReleaseComObject(tempSheet);
                         Marshal.ReleaseComObject(tempBook);
 
+                        // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
+                        Range dataRange = xlWorkSheet.UsedRange;
+                        int rows = dataRange.Rows.Count;
+                        int cols = dataRange.Columns.Count;
+
+                        // Начинаем со 2-й строки, чтобы не трогать заголовки
+                        for (int r = 2; r <= rows; r++)
+                        {
+                            for (int c = 1; c <= cols; c++)
+                            {
+                                Range cell = dataRange.Cells[r, c];
+                                if (cell.Value2 != null)
+                                {
+                                    string cellText = cell.Text.ToString().Trim();
+                                    if (!string.IsNullOrEmpty(cellText))
+                                    {
+                                        // Парсим строку как число с точкой-разделителем
+                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+                                        {
+                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
+                                            cell.Value2 = number;            // присваиваем настоящее число
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // =====================================================================
+
                         Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");
                     }
@@ -295,6 +324,34 @@ namespace TNovViewsSheets
                         tempBook.Close(false);
                         Marshal.ReleaseComObject(tempSheet);
                         Marshal.ReleaseComObject(tempBook);
+
+                        // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
+                        Range dataRange = xlWorkSheet.UsedRange;
+                        int rows = dataRange.Rows.Count;
+                        int cols = dataRange.Columns.Count;
+
+                        // Начинаем со 2-й строки, чтобы не трогать заголовки
+                        for (int r = 2; r <= rows; r++)
+                        {
+                            for (int c = 1; c <= cols; c++)
+                            {
+                                Range cell = dataRange.Cells[r, c];
+                                if (cell.Value2 != null)
+                                {
+                                    string cellText = cell.Text.ToString().Trim();
+                                    if (!string.IsNullOrEmpty(cellText))
+                                    {
+                                        // Парсим строку как число с точкой-разделителем
+                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+                                        {
+                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
+                                            cell.Value2 = number;            // присваиваем настоящее число
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // =====================================================================
 
                         Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");
@@ -402,6 +459,34 @@ namespace TNovViewsSheets
                         tempBook.Close(false);
                         Marshal.ReleaseComObject(tempSheet);
                         Marshal.ReleaseComObject(tempBook);
+
+                        // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
+                        Range dataRange = xlWorkSheet.UsedRange;
+                        int rows = dataRange.Rows.Count;
+                        int cols = dataRange.Columns.Count;
+
+                        // Начинаем со 2-й строки, чтобы не трогать заголовки
+                        for (int r = 2; r <= rows; r++)
+                        {
+                            for (int c = 1; c <= cols; c++)
+                            {
+                                Range cell = dataRange.Cells[r, c];
+                                if (cell.Value2 != null)
+                                {
+                                    string cellText = cell.Text.ToString().Trim();
+                                    if (!string.IsNullOrEmpty(cellText))
+                                    {
+                                        // Парсим строку как число с точкой-разделителем
+                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+                                        {
+                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
+                                            cell.Value2 = number;            // присваиваем настоящее число
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // =====================================================================
 
                         Logger.Log("Удаляем текстовый файл", 1);
                         System.IO.File.Delete(@"c:\temp\" + curview.Name + ".txt");

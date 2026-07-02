@@ -3,7 +3,6 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.Attributes;
 using Excel = Microsoft.Office.Interop.Excel;
 using System;
-using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -178,7 +177,7 @@ namespace TNovViewsSheets
                         for (int i = 0; i < columnCount; i++)
                         {
                             fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
-                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
+                            fieldInfo[i, 1] = (int)Microsoft.Office.Interop.Excel.XlColumnDataType.xlTextFormat; // xlTextFormat = 2
                         }
 
                         // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
@@ -186,16 +185,16 @@ namespace TNovViewsSheets
                             Filename: @"c:\temp\" + curview.Name + ".txt",
                             Origin: 65001,                                       // UTF-8
                             StartRow: 1,
-                            DataType: XlTextParsingType.xlDelimited,
-                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            DataType: Microsoft.Office.Interop.Excel.XlTextParsingType.xlDelimited,
+                            TextQualifier: Microsoft.Office.Interop.Excel.XlTextQualifier.xlTextQualifierDoubleQuote,
                             Comma: true,
                             FieldInfo: fieldInfo);
 
-                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+                        Microsoft.Office.Interop.Excel.Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
 
                         // 4. Копируем данные с временного листа на целевой лист
-                        Worksheet tempSheet = tempBook.Worksheets[1];
-                        Range usedRange = tempSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Worksheet tempSheet = (Microsoft.Office.Interop.Excel.Worksheet)tempBook.Worksheets[1];
+                        Microsoft.Office.Interop.Excel.Range usedRange = tempSheet.UsedRange;
                         usedRange.Copy(xlWorkSheet.Range["A1"]);
 
                         // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
@@ -204,7 +203,7 @@ namespace TNovViewsSheets
                         Marshal.ReleaseComObject(tempBook);
 
                         // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
-                        Range dataRange = xlWorkSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Range dataRange = xlWorkSheet.UsedRange;
                         int rows = dataRange.Rows.Count;
                         int cols = dataRange.Columns.Count;
 
@@ -213,7 +212,7 @@ namespace TNovViewsSheets
                         {
                             for (int c = 1; c <= cols; c++)
                             {
-                                Range cell = dataRange.Cells[r, c];
+                                Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
                                 if (cell.Value2 != null)
                                 {
                                     string cellText = cell.Text.ToString().Trim();
@@ -255,7 +254,7 @@ namespace TNovViewsSheets
                         try
                         {
                             // Получить активный экземпляр Excel
-                            xlApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
+                            xlApp = GetActiveExcelApplication();
                             // define an object to represent default value
                             object default_value = System.Reflection.Missing.Value; // object = object type
                                                                                     // create new workbook, which by default contains at least 1 worksheet
@@ -300,7 +299,7 @@ namespace TNovViewsSheets
                         for (int i = 0; i < columnCount; i++)
                         {
                             fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
-                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
+                            fieldInfo[i, 1] = (int)Microsoft.Office.Interop.Excel.XlColumnDataType.xlTextFormat; // xlTextFormat = 2
                         }
 
                         // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
@@ -308,16 +307,16 @@ namespace TNovViewsSheets
                             Filename: @"c:\temp\" + curview.Name + ".txt",
                             Origin: 65001,                                       // UTF-8
                             StartRow: 1,
-                            DataType: XlTextParsingType.xlDelimited,
-                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            DataType: Microsoft.Office.Interop.Excel.XlTextParsingType.xlDelimited,
+                            TextQualifier: Microsoft.Office.Interop.Excel.XlTextQualifier.xlTextQualifierDoubleQuote,
                             Comma: true,
                             FieldInfo: fieldInfo);
 
-                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+                        Microsoft.Office.Interop.Excel.Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
 
                         // 4. Копируем данные с временного листа на целевой лист
-                        Worksheet tempSheet = tempBook.Worksheets[1];
-                        Range usedRange = tempSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Worksheet tempSheet = (Microsoft.Office.Interop.Excel.Worksheet)tempBook.Worksheets[1];
+                        Microsoft.Office.Interop.Excel.Range usedRange = tempSheet.UsedRange;
                         usedRange.Copy(xlWorkSheet.Range["A1"]);
 
                         // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
@@ -326,7 +325,7 @@ namespace TNovViewsSheets
                         Marshal.ReleaseComObject(tempBook);
 
                         // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
-                        Range dataRange = xlWorkSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Range dataRange = xlWorkSheet.UsedRange;
                         int rows = dataRange.Rows.Count;
                         int cols = dataRange.Columns.Count;
 
@@ -335,7 +334,7 @@ namespace TNovViewsSheets
                         {
                             for (int c = 1; c <= cols; c++)
                             {
-                                Range cell = dataRange.Cells[r, c];
+                                Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
                                 if (cell.Value2 != null)
                                 {
                                     string cellText = cell.Text.ToString().Trim();
@@ -380,7 +379,7 @@ namespace TNovViewsSheets
                         try
                         {
                             // Получить активный экземпляр Excel
-                            xlApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
+                            xlApp = GetActiveExcelApplication();
                             xlWorkBook = xlApp.ActiveWorkbook;
                             if (xlWorkBook != null)
                             {
@@ -435,7 +434,7 @@ namespace TNovViewsSheets
                         for (int i = 0; i < columnCount; i++)
                         {
                             fieldInfo[i, 0] = i + 1;                              // номер столбца (1‑based)
-                            fieldInfo[i, 1] = (int)XlColumnDataType.xlTextFormat; // xlTextFormat = 2
+                            fieldInfo[i, 1] = (int)Microsoft.Office.Interop.Excel.XlColumnDataType.xlTextFormat; // xlTextFormat = 2
                         }
 
                         // 3. Открываем CSV во временной книге с принудительным текстовым форматом и кодировкой UTF-8
@@ -443,16 +442,16 @@ namespace TNovViewsSheets
                             Filename: @"c:\temp\" + curview.Name + ".txt",
                             Origin: 65001,                                       // UTF-8
                             StartRow: 1,
-                            DataType: XlTextParsingType.xlDelimited,
-                            TextQualifier: XlTextQualifier.xlTextQualifierDoubleQuote,
+                            DataType: Microsoft.Office.Interop.Excel.XlTextParsingType.xlDelimited,
+                            TextQualifier: Microsoft.Office.Interop.Excel.XlTextQualifier.xlTextQualifierDoubleQuote,
                             Comma: true,
                             FieldInfo: fieldInfo);
 
-                        Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
+                        Microsoft.Office.Interop.Excel.Workbook tempBook = xlApp.ActiveWorkbook;   // получаем только что открытую книгу
 
                         // 4. Копируем данные с временного листа на целевой лист
-                        Worksheet tempSheet = tempBook.Worksheets[1];
-                        Range usedRange = tempSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Worksheet tempSheet = (Microsoft.Office.Interop.Excel.Worksheet)tempBook.Worksheets[1];
+                        Microsoft.Office.Interop.Excel.Range usedRange = tempSheet.UsedRange;
                         usedRange.Copy(xlWorkSheet.Range["A1"]);
 
                         // 5. Закрываем временную книгу без сохранения и освобождаем COM‑объекты
@@ -461,7 +460,7 @@ namespace TNovViewsSheets
                         Marshal.ReleaseComObject(tempBook);
 
                         // ===== НОВЫЙ БЛОК: Преобразование текстовых чисел в настоящие числа =====
-                        Range dataRange = xlWorkSheet.UsedRange;
+                        Microsoft.Office.Interop.Excel.Range dataRange = xlWorkSheet.UsedRange;
                         int rows = dataRange.Rows.Count;
                         int cols = dataRange.Columns.Count;
 
@@ -470,7 +469,7 @@ namespace TNovViewsSheets
                         {
                             for (int c = 1; c <= cols; c++)
                             {
-                                Range cell = dataRange.Cells[r, c];
+                                Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
                                 if (cell.Value2 != null)
                                 {
                                     string cellText = cell.Text.ToString().Trim();
@@ -504,7 +503,28 @@ namespace TNovViewsSheets
 
             return Result.Succeeded;
         }
-            private int xlRowLast(Microsoft.Office.Interop.Excel.Worksheet w_s)
+        private static Microsoft.Office.Interop.Excel.Application GetActiveExcelApplication()
+        {
+            Guid clsid;
+            int hr = CLSIDFromProgID("Excel.Application", out clsid);
+            if (hr < 0)
+                Marshal.ThrowExceptionForHR(hr);
+
+            object activeObject;
+            hr = GetActiveObject(ref clsid, IntPtr.Zero, out activeObject);
+            if (hr < 0)
+                Marshal.ThrowExceptionForHR(hr);
+
+            return (Microsoft.Office.Interop.Excel.Application)activeObject;
+        }
+
+        [DllImport("ole32.dll", CharSet = CharSet.Unicode, PreserveSig = true)]
+        private static extern int CLSIDFromProgID(string progId, out Guid clsid);
+
+        [DllImport("oleaut32.dll", PreserveSig = true)]
+        private static extern int GetActiveObject(ref Guid rclsid, IntPtr pvReserved, [MarshalAs(UnmanagedType.IUnknown)] out object ppunk);
+
+        private int xlRowLast(Microsoft.Office.Interop.Excel.Worksheet w_s)
         {
             // return last used row number of worksheet
             return w_s.Cells.SpecialCells(Microsoft.Office.Interop.Excel.XlCellType.xlCellTypeLastCell, Type.Missing).Row;

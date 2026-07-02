@@ -256,7 +256,7 @@ namespace TNovViewsSheets
                                 if (tNovSheet.TNovSheetNumber == sNumber)
                                 {
                                     sheetFound = true;
-                                    Logger.Log("      найден лист Revit "+sheet.Id.IntegerValue.ToString()+" : " + sNumber + " "+sheet.Name, 2);
+                                    Logger.Log("      найден лист Revit "+RevitApiCompat.ElementIdIntValue(sheet.Id).ToString()+" : " + sNumber + " "+sheet.Name, 2);
                                     string newNumber = tNovSheet.TNovSheetCleanNumber;
                                     if (prefixCount > 0)
                                     {
@@ -344,7 +344,7 @@ namespace TNovViewsSheets
 
                     foreach (var sheet in sheets1)
                     {
-                        Logger.Log("   лист Revit " + sheet.Id.IntegerValue.ToString() + " : " + 
+                        Logger.Log("   лист Revit " + RevitApiCompat.ElementIdIntValue(sheet.Id).ToString() + " : " + 
                             sheet.get_Parameter(BuiltInParameter.SHEET_NUMBER).AsString() + " " + sheet.Name, 2);
 
                         string sSet = "без комплекта";

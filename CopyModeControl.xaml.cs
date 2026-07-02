@@ -314,7 +314,7 @@ namespace TNovViewsSheets
                     foreach (var titleBlock1 in titleBlocks1)
                     {
                         ElementId titleBlockTypeId1 = titleBlock1.GetTypeId();
-                        if (titleBlockTypeId1.IntegerValue== titleBlockTypeId.IntegerValue) //сопоставление штампов по типу
+                        if (RevitApiCompat.ElementIdIntValue(titleBlockTypeId1) == RevitApiCompat.ElementIdIntValue(titleBlockTypeId)) //сопоставление штампов по типу
                         {
                             foreach(var p in titleBlockParams)
                             {
@@ -363,7 +363,7 @@ namespace TNovViewsSheets
                         if (Param.ParamExist(paramname, elem1) && elem1.LookupParameter(paramname).IsReadOnly == false)
                         {
                             elem1.LookupParameter(paramname).Set(valueId);
-                            Logger.Log($"Параметр {paramname} - ElementId, назначено значение {valueId.IntegerValue}", 2); 
+                            Logger.Log($"Параметр {paramname} - ElementId, назначено значение {RevitApiCompat.ElementIdIntValue(valueId)}", 2); 
                             return true;
                         }
                         break;

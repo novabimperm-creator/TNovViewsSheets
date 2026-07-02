@@ -161,7 +161,7 @@ namespace TNovViewsSheets
                 foreach (string idStr in set.ScheduleIds)
                 {
                     if (int.TryParse(idStr, out int intId))
-                        ids.Add(new ElementId(intId));
+                        ids.Add(RevitApiCompat.CreateElementId(intId));
                 }
                 foreach (var s in _schedules)
                     if (ids.Contains(s.Id))

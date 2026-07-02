@@ -169,7 +169,7 @@ namespace TNovViewsSheets
                         try { c.Pinned = false; }
                         catch (Exception ex)
                         {
-                            Logger.Log($"native-merge[{srcNumber}]: unpin {cid.IntegerValue} failed: {ex.Message}",4);
+                            Logger.Log($"native-merge[{srcNumber}]: unpin {RevitApiCompat.ElementIdIntValue(cid)} failed: {ex.Message}",4);
                         }
                     }
                     try { ElementTransformUtils.MoveElements(doc, copied, offset); }
@@ -202,7 +202,7 @@ namespace TNovViewsSheets
                 try { doc.Delete(vpId); }
                 catch (Exception ex)
                 {
-                    Logger.Log($"native-merge[{srcNumber}]: delete source viewport vp={vpId.IntegerValue} failed: {ex.Message}",4);
+                    Logger.Log($"native-merge[{srcNumber}]: delete source viewport vp={RevitApiCompat.ElementIdIntValue(vpId)} failed: {ex.Message}",4);
                     failed++;
                     continue;
                 }
@@ -224,7 +224,7 @@ namespace TNovViewsSheets
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"native-merge[{srcNumber}]: Viewport.Create view={viewId.IntegerValue} legend={isLegend} failed: {ex.Message}", 4);
+                    Logger.Log($"native-merge[{srcNumber}]: Viewport.Create view={RevitApiCompat.ElementIdIntValue(viewId)} legend={isLegend} failed: {ex.Message}", 4);
                     failed++;
                     continue;
                 }

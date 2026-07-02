@@ -8,13 +8,13 @@ Z:\DEV\TNovViewsSheets\obj\R2022\
 TNovViewsSheets
 none
 false
-TRACE;R2022
+;TRACE;R2022;REVIT2022;TRACE;R2022;NETFRAMEWORK;NET48;NET30_OR_GREATER;NET35_OR_GREATER;NET40_OR_GREATER;NET45_OR_GREATER;NET451_OR_GREATER;NET452_OR_GREATER;NET46_OR_GREATER;NET461_OR_GREATER;NET462_OR_GREATER;NET47_OR_GREATER;NET471_OR_GREATER;NET472_OR_GREATER;NET48_OR_GREATER
 
-18-314737456
-
-39814152170
-26-1788318347
-ChangesWPF.xaml;CopyModeControl.xaml;CreateModeControl.xaml;CreateViewControl.xaml;DeleteModeControl.xaml;DuplicateModeControl.xaml;ExcelWPF.xaml;SheetNumControl.xaml;ExportPdfControl.xaml;ExportSchedulesControl.xaml;ImportExcelControl.xaml;MainWindow.xaml;SheetNumWPF.xaml;SheetSelectionWindow.xaml;SheetsStartSimpleWPF.xaml;SheetsStartWPF.xaml;StartPanel.xaml;Styles.xaml;
+18-399745926
+1-142693218
+411612054850
+61-1079400439
+ChangesWPF.xaml;CopyModeControl.xaml;CreateModeControl.xaml;CreateViewControl.xaml;DeleteModeControl.xaml;DuplicateModeControl.xaml;ExcelWPF.xaml;ExportPdfControl.xaml;ExportSchedulesControl.xaml;ImportExcelControl.xaml;MainWindow.xaml;SheetNumControl.xaml;SheetNumWPF.xaml;SheetSelectionWindow.xaml;SheetsStartSimpleWPF.xaml;SheetsStartWPF.xaml;StartPanel.xaml;Styles.xaml;
 
 False
 

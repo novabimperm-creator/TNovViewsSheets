@@ -152,7 +152,7 @@ namespace TNovViewsSheets
                 Logger.Log("Текущий вид не является листом. Завершение работы.", 3);
                 return Result.Cancelled;
             }
-            ElementId sheetCatId = new ElementId(-2003100);
+            ElementId sheetCatId = RevitApiCompat.CreateElementId(-2003100);
             bool sheetView = v.Category.Id == sheetCatId;
             /*
             Autodesk.Revit.UI.Selection.Selection selection = commandData.Application.ActiveUIDocument.Selection;

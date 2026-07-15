@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using TNovCommon;
@@ -235,7 +236,8 @@ namespace TNovViewsSheets
 
         private void HeaderCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            bool target = HeaderCheckBox.IsChecked == true;
+            bool target = sender is System.Windows.Controls.Primitives.ToggleButton toggle
+                && toggle.IsChecked == true;
             foreach (var s in VisibleItems()) s.IsSelected = target;
         }
 
@@ -355,13 +357,17 @@ namespace TNovViewsSheets
             }
         }
 
-        private void OnHeaderClick(object sender, RoutedEventArgs e)
+        private void SheetsList_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            if (!(e.OriginalSource is GridViewColumnHeader header)) return;
-            if (header.Role == GridViewColumnHeaderRole.Padding) return;
-            if (!(header.Column?.DisplayMemberBinding is Binding binding)) return;
+            e.Handled = true;
 
-            string path = binding.Path?.Path;
+            string path = e.Column.SortMemberPath;
+            if (string.IsNullOrEmpty(path) && e.Column is DataGridTextColumn textColumn
+                && textColumn.Binding is Binding binding)
+            {
+                path = binding.Path?.Path;
+            }
+
             if (string.IsNullOrEmpty(path)) return;
 
             var direction = (path == _lastSortColumn && _lastSortDirection == ListSortDirection.Ascending)
@@ -524,9 +530,10 @@ namespace TNovViewsSheets
             proc.Start();
         }
 
-        private void Border_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
         }
     }
 }

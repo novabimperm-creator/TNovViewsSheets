@@ -13,9 +13,9 @@ namespace TNovViewsSheets
     {
         private UIDocument _uidoc;
         private Document _doc;
-        private ListView _sheetsListView;
+        private DataGrid _sheetsListView;
 
-        public DeleteModeControl(UIDocument uidoc, ListView sheetsListView)
+        public DeleteModeControl(UIDocument uidoc, DataGrid sheetsListView)
         {
             InitializeComponent();
             _uidoc = uidoc;

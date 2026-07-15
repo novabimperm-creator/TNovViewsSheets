@@ -16,10 +16,10 @@ namespace TNovViewsSheets
         private Document _doc;
         private ObservableCollection<SheetInfo> _sheets;
         private List<TitleBlockItem> _titleBlockItems;
-        private ListView _sheetsListView;
+        private DataGrid _sheetsListView;
 
         public DuplicateModeControl(UIDocument uidoc, ObservableCollection<SheetInfo> sheets,
-                                     List<TitleBlockItem> titleBlockItems, ListView sheetsListView)
+                                     List<TitleBlockItem> titleBlockItems, DataGrid sheetsListView)
         {
             InitializeComponent();
             _uidoc = uidoc;

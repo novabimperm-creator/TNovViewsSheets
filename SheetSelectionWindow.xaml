@@ -1,243 +1,378 @@
 <Window x:Class="TNovViewsSheets.SheetSelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Экспорт листов"
-        Width="1300" Height="820"
+        Width="1300"
+        Height="820"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         ResizeMode="CanResize"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
-        MinWidth="900" MinHeight="500">
+        MinWidth="900"
+        MinHeight="500">
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/TNovCommon;component/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style TargetType="GroupBox">
-                <Setter Property="Margin" Value="0,0,0,8" />
-                <Setter Property="Padding" Value="8" />
+            <Style x:Key="PanelBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <Style x:Key="PanelTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleStyle}">
+                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="30"
-                            ResizeBorderThickness="5"
-                            GlassFrameThickness="0"
-                            CornerRadius="12" />
-    </shell:WindowChrome.WindowChrome>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="30"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="12"/>
+    </WindowChrome.WindowChrome>
 
     <Border CornerRadius="12"
-            Background="White"
-            BorderBrush="#FF008E43"
+            Background="{StaticResource BgBrush}"
+            BorderBrush="{StaticResource AccentBrush}"
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Верхняя панель (кастомный заголовок) -->
-            <Border Height="30" CornerRadius="12 12 0 0"
-    Background="#FF008E43" 
-    VerticalAlignment="Top"
-    MouseDown="Border_MouseDown">
-                <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource RoundButtonStyle}" 
-Click="CloseHeaderButton_Click" Content="✕"
-HorizontalAlignment="Center" VerticalAlignment="Center"
-Width="20" Height="20" Margin="5,0"
-WindowChrome.IsHitTestVisibleInChrome="True"/>
-                    <Button Style="{StaticResource RoundButtonStyle2}" 
-Click="HelpButton_Click" Content="?"
-HorizontalAlignment="Center" VerticalAlignment="Center"
-Width="20" Height="20" Margin="0"
-WindowChrome.IsHitTestVisibleInChrome="True"/>
-                    <TextBlock Text="Экспорт листов" 
-Foreground="White"
-VerticalAlignment="Center"
-Margin="10,0"/>
-                </StackPanel>
-
+            <Border Grid.Row="0"
+                    MouseDown="TitleBar_MouseDown"
+                    Background="Transparent"
+                    Cursor="Arrow"
+                    Padding="18,14,18,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
+                        <ColumnDefinition Width="35"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="ЭКСПОРТ ЛИСТОВ"
+                               Grid.Column="0"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="i"
+                            Grid.Column="1"
+                            Style="{StaticResource CloseButtonStyleMini}"
+                            Click="HelpButton_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Content="✕"
+                            Grid.Column="2"
+                            Style="{StaticResource CloseButtonStyleMini}"
+                            Click="CloseHeaderButton_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
             </Border>
 
-            <!-- Body -->
-            <DockPanel Grid.Row="1" Margin="12">
+            <DockPanel Grid.Row="1" Margin="18,12,18,18">
 
-                <!-- Bottom action buttons -->
                 <StackPanel DockPanel.Dock="Bottom"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
-                            Margin="0,12,0,0">
+                            Margin="0,4,0,0">
                     <Button x:Name="OkButton"
-                            Style="{StaticResource CustomButtonStyle}"
+                            Style="{StaticResource RunButtonStyle}"
                             Content="Экспорт…"
-                            MinWidth="110" MinHeight="28"
-                            Padding="16,4"
+                            MinWidth="120"
+                            Padding="16,8"
                             Margin="0,0,8,0"
                             IsDefault="True"
-                            Click="OkButton_Click" />
+                            Click="OkButton_Click"/>
                     <Button x:Name="CancelButton"
-                            Style="{StaticResource CustomButtonStyle}"
+                            Style="{StaticResource CloseButtonStyle}"
                             Content="Отмена"
-                            MinWidth="100" MinHeight="28"
-                            Padding="16,4"
-                            IsCancel="True" />
+                            MinWidth="100"
+                            Padding="16,8"
+                            IsCancel="True"/>
                 </StackPanel>
 
-                <!-- Export options group -->
-                <GroupBox DockPanel.Dock="Bottom" Header="Параметры экспорта">
+                <Border DockPanel.Dock="Bottom" Style="{StaticResource PanelBorderStyle}">
                     <StackPanel>
-                        <TextBlock Text="Формат вывода:" Margin="0,0,0,4" />
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
-                            <CheckBox x:Name="FormatDwg" Content="DWG" IsChecked="True" Margin="0,0,16,0" />
-                            <CheckBox x:Name="FormatPdf" Content="PDF" IsChecked="True" />
+                        <TextBlock Text="Параметры экспорта" Style="{StaticResource PanelTitleStyle}"/>
+
+                        <TextBlock Text="Формат вывода"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   FontSize="12"
+                                   Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <ToggleButton x:Name="FormatDwg"
+                                          Style="{StaticResource CardToggleStyle}"
+                                          IsChecked="True"
+                                          MinWidth="120"
+                                          Margin="0,0,8,0">
+                                <TextBlock Text="DWG" Style="{StaticResource CardTitleStyle}"/>
+                            </ToggleButton>
+                            <ToggleButton x:Name="FormatPdf"
+                                          Style="{StaticResource CardToggleStyle}"
+                                          IsChecked="True"
+                                          MinWidth="120"
+                                          Margin="0">
+                                <TextBlock Text="PDF" Style="{StaticResource CardTitleStyle}"/>
+                            </ToggleButton>
                         </StackPanel>
 
-                        <GroupBox x:Name="DwgGroup" Header="DWG" Margin="0,6,0,0" Padding="6"
-                                  IsEnabled="{Binding ElementName=FormatDwg, Path=IsChecked}">
+                        <Border x:Name="DwgGroup"
+                                Background="{StaticResource BgBrush}"
+                                BorderBrush="{StaticResource SelectedBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10"
+                                Margin="0,0,0,8"
+                                IsEnabled="{Binding ElementName=FormatDwg, Path=IsChecked}">
                             <StackPanel>
+                                <TextBlock Text="DWG" Style="{StaticResource PanelTitleStyle}" Margin="0,0,0,8"/>
+
                                 <RadioButton x:Name="ModeMultiLayout"
+                                             Style="{StaticResource DarkRadioButtonStyle}"
                                              Content="Каждый лист — своя вкладка Layout"
-                                             Margin="0,2" Visibility="Collapsed"/>
+                                             Margin="0,2"
+                                             Visibility="Collapsed"/>
                                 <RadioButton x:Name="ModeTiled"
+                                             Style="{StaticResource DarkRadioButtonStyle}"
                                              Content="Все листы рядом в Model Space"
-                                             IsChecked="True" Margin="0,2" Visibility="Collapsed"/>
+                                             IsChecked="True"
+                                             Margin="0,2"
+                                             Visibility="Collapsed"/>
 
                                 <TextBlock Text="DWG export setup:" Margin="0,8,0,4" Visibility="Collapsed"/>
-                                <ComboBox x:Name="ExportSetupCombo" Width="300" HorizontalAlignment="Left" Visibility="Collapsed"/>
+                                <ComboBox x:Name="ExportSetupCombo"
+                                          Width="300"
+                                          HorizontalAlignment="Left"
+                                          Style="{StaticResource DarkComboBoxStyle}"
+                                          Margin="0"
+                                          Visibility="Collapsed"/>
 
-                                <TextBlock Text="Цвета:" Margin="0,8,0,4" />
-                                <ComboBox x:Name="ColorModeCombo" Width="300" HorizontalAlignment="Left">
-                                    <ComboBoxItem Content="Задано в стилях объектов (True Color RGB)" Tag="TrueColor" />
-                                    <ComboBoxItem Content="Задано в виде (True Color RGB)" IsSelected="True" Tag="TrueColorPerView" />
-                                    <ComboBoxItem Content="Индексированные цвета (255)" Tag="IndexColors" />
+                                <TextBlock Text="Цвета"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,6"/>
+                                <ComboBox x:Name="ColorModeCombo"
+                                          Width="320"
+                                          HorizontalAlignment="Left"
+                                          Style="{StaticResource DarkComboBoxStyle}"
+                                          Margin="0">
+                                    <ComboBoxItem Content="Задано в стилях объектов (True Color RGB)" Tag="TrueColor"/>
+                                    <ComboBoxItem Content="Задано в виде (True Color RGB)" IsSelected="True" Tag="TrueColorPerView"/>
+                                    <ComboBoxItem Content="Индексированные цвета (255)" Tag="IndexColors"/>
                                 </ComboBox>
-
-                                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Foreground="#888" Visibility="Collapsed"
-                                           Text="Layout: слияние через AutoCAD (нужен установленный AutoCAD). Model Space: только Revit, AutoCAD не запускается." />
                             </StackPanel>
-                        </GroupBox>
+                        </Border>
 
-                        <GroupBox x:Name="PdfGroup" Header="PDF" Margin="0,6,0,0" Padding="6"
-                                  IsEnabled="{Binding ElementName=FormatPdf, Path=IsChecked}">
-                            <StackPanel Orientation="Horizontal">
-                                
-                                <CheckBox x:Name="PdfColor"
-Content="Цветная печать"
-IsChecked="True" Margin="0,2,0,0" />
-                                <CheckBox x:Name="PdfQuality"
-          Content="Презентационное качество"
-          IsChecked="False" Margin="10,2,0,0" />
-                                <CheckBox x:Name="PdfRastr"
-Content="Растровая обработка"
-IsChecked="False" Margin="10,2,0,0" />
-                                <CheckBox x:Name="PdfFitToSheet"
-          Content="Печатать по размеру листа"
-          IsChecked="True" Margin="10,2,0,0" />
+                        <Border x:Name="PdfGroup"
+                                Background="{StaticResource BgBrush}"
+                                BorderBrush="{StaticResource SelectedBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10"
+                                IsEnabled="{Binding ElementName=FormatPdf, Path=IsChecked}">
+                            <StackPanel>
+                                <TextBlock Text="PDF" Style="{StaticResource PanelTitleStyle}" Margin="0,0,0,8"/>
+                                <WrapPanel>
+                                    <ToggleButton x:Name="PdfColor"
+                                                  Style="{StaticResource CardToggleStyle}"
+                                                  IsChecked="True"
+                                                  MinWidth="170"
+                                                  Margin="0,0,8,8">
+                                        <TextBlock Text="Цветная печать" Style="{StaticResource CardTitleStyle}"/>
+                                    </ToggleButton>
+                                    <ToggleButton x:Name="PdfQuality"
+                                                  Style="{StaticResource CardToggleStyle}"
+                                                  IsChecked="False"
+                                                  MinWidth="220"
+                                                  Margin="0,0,8,8">
+                                        <TextBlock Text="Презентационное качество" Style="{StaticResource CardTitleStyle}"/>
+                                    </ToggleButton>
+                                    <ToggleButton x:Name="PdfRastr"
+                                                  Style="{StaticResource CardToggleStyle}"
+                                                  IsChecked="False"
+                                                  MinWidth="190"
+                                                  Margin="0,0,8,8">
+                                        <TextBlock Text="Растровая обработка" Style="{StaticResource CardTitleStyle}"/>
+                                    </ToggleButton>
+                                    <ToggleButton x:Name="PdfFitToSheet"
+                                                  Style="{StaticResource CardToggleStyle}"
+                                                  IsChecked="True"
+                                                  MinWidth="220"
+                                                  Margin="0,0,0,8">
+                                        <TextBlock Text="Печатать по размеру листа"
+                                                   Style="{StaticResource CardTitleStyle}"
+                                                   TextWrapping="Wrap"/>
+                                    </ToggleButton>
+                                </WrapPanel>
                             </StackPanel>
-                        </GroupBox>
+                        </Border>
                     </StackPanel>
-                </GroupBox>
+                </Border>
 
-                <!-- Fill: sheets list (left) + splitter + preview (right) -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition x:Name="SheetListColumn" Width="*" MinWidth="420" />
-                        <ColumnDefinition x:Name="SplitterColumn" Width="6" />
-                        <ColumnDefinition x:Name="PreviewColumn" Width="520" MinWidth="240" />
+                        <ColumnDefinition x:Name="SheetListColumn" Width="*" MinWidth="420"/>
+                        <ColumnDefinition x:Name="SplitterColumn" Width="6"/>
+                        <ColumnDefinition x:Name="PreviewColumn" Width="520" MinWidth="240"/>
                     </Grid.ColumnDefinitions>
 
-                    <GroupBox x:Name="SheetListGroup" Grid.Column="0" Header="Листы" Margin="0,0,0,8">
+                    <Border x:Name="SheetListGroup"
+                            Grid.Column="0"
+                            Style="{StaticResource PanelBorderStyle}"
+                            Margin="0,0,8,0">
                         <DockPanel>
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
-                                <TextBlock Text="Поиск:" VerticalAlignment="Center" Margin="0,0,6,0" />
-                                <TextBox x:Name="FilterBox" Width="200"
-                                         TextChanged="FilterBox_TextChanged"
-                                         VerticalContentAlignment="Center"
-                                         ToolTip="Поиск по номеру, имени или стадии" />
-                                <TextBlock Text="Комплект:" VerticalAlignment="Center" Margin="12,0,6,0" />
-                                <ComboBox x:Name="StageCombo" Width="120"
-                                          SelectionChanged="StageCombo_SelectionChanged" />
-                                <Button Style="{StaticResource CustomButtonStyle}"
-                                        Content="Все"
-                                        MinWidth="70" MinHeight="24"
-                                        Padding="10,3"
-                                        Margin="12,0,4,0"
-                                        Click="SelectAll_Click" />
-                                <Button Style="{StaticResource CustomButtonStyle}"
-                                        Content="Снять"
-                                        MinWidth="70" MinHeight="24"
-                                        Padding="10,3"
-                                        Click="SelectNone_Click" />
-                                <TextBlock x:Name="CountLabel" VerticalAlignment="Center"
-                                           Margin="12,0,0,0" Foreground="#555" />
-                            </StackPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="Листы"
+                                       Style="{StaticResource PanelTitleStyle}"/>
 
-                            <ListView x:Name="SheetsList"
+                            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <TextBlock Text="Поиск:"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,6"/>
+                                <TextBox x:Name="FilterBox"
+                                         Width="200"
+                                         Height="36"
+                                         Style="{StaticResource DarkTextBoxStyle}"
+                                         Margin="0,0,12,6"
+                                         TextChanged="FilterBox_TextChanged"
+                                         ToolTip="Поиск по номеру, имени или стадии"/>
+                                <TextBlock Text="Комплект:"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,6"/>
+                                <ComboBox x:Name="StageCombo"
+                                          Width="140"
+                                          Height="36"
+                                          Style="{StaticResource DarkComboBoxStyle}"
+                                          Margin="0,0,12,6"
+                                          SelectionChanged="StageCombo_SelectionChanged"/>
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Content="Все"
+                                        MinWidth="70"
+                                        Padding="10,6"
+                                        Margin="0,0,6,6"
+                                        Click="SelectAll_Click"/>
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Content="Снять"
+                                        MinWidth="70"
+                                        Padding="10,6"
+                                        Margin="0,0,12,6"
+                                        Click="SelectNone_Click"/>
+                                <TextBlock x:Name="CountLabel"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           Margin="0,0,0,6"/>
+                            </WrapPanel>
+
+                            <DataGrid x:Name="SheetsList"
+                                      Style="{StaticResource DarkDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeaderStyle}"
+                                      CellStyle="{StaticResource DarkDataGridCellStyle}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      HeadersVisibility="Column"
                                       SelectionMode="Extended"
-                                      GridViewColumnHeader.Click="OnHeaderClick"
+                                      SelectionUnit="FullRow"
+                                      CanUserSortColumns="True"
+                                      Sorting="SheetsList_Sorting"
                                       SelectionChanged="SheetsList_SelectionChanged">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Width="40">
-                                            <GridViewColumn.Header>
-                                                <CheckBox x:Name="HeaderCheckBox"
-                                                          Click="HeaderCheckBox_Click"
-                                                          ToolTip="Toggle all visible" />
-                                            </GridViewColumn.Header>
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                              HorizontalAlignment="Center" />
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="Стадия" Width="80"
-                                                        DisplayMemberBinding="{Binding Stage}" />
-                                        <GridViewColumn Header="Номер" Width="110"
-                                                        DisplayMemberBinding="{Binding SheetNumber}" />
-                                        <GridViewColumn Header="Имя" Width="320"
-                                                        DisplayMemberBinding="{Binding SheetName}" />
-                                        <GridViewColumn Header="Placeholder" Width="80"
-                                                        DisplayMemberBinding="{Binding IsPlaceholder}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="52" CanUserSort="False">
+                                        <DataGridTemplateColumn.HeaderTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Style="{StaticResource TreeCheckToggleStyle}"
+                                                              Click="HeaderCheckBox_Click"
+                                                              ToolTip="Выбрать все видимые"
+                                                              HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.HeaderTemplate>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Style="{StaticResource TreeCheckToggleStyle}"
+                                                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Стадия"
+                                                        Binding="{Binding Stage}"
+                                                        Width="90"
+                                                        SortMemberPath="Stage"
+                                                        ElementStyle="{StaticResource DarkDataGridTextElementStyle}"/>
+                                    <DataGridTextColumn Header="Номер"
+                                                        Binding="{Binding SheetNumber}"
+                                                        Width="110"
+                                                        SortMemberPath="SheetNumber"
+                                                        ElementStyle="{StaticResource DarkDataGridTextElementStyle}"/>
+                                    <DataGridTextColumn Header="Имя"
+                                                        Binding="{Binding SheetName}"
+                                                        Width="*"
+                                                        MinWidth="180"
+                                                        SortMemberPath="SheetName"
+                                                        ElementStyle="{StaticResource DarkDataGridTextElementStyle}"/>
+                                    <DataGridTextColumn Header="Placeholder"
+                                                        Binding="{Binding IsPlaceholder}"
+                                                        Width="90"
+                                                        SortMemberPath="IsPlaceholder"
+                                                        ElementStyle="{StaticResource DarkDataGridTextElementStyle}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </DockPanel>
-                    </GroupBox>
+                    </Border>
 
                     <GridSplitter x:Name="PreviewSplitter"
                                   Grid.Column="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Background="#E0E0E0"
+                                  Background="{StaticResource SelectedBrush}"
                                   ShowsPreview="True"
                                   ResizeBehavior="PreviousAndNext"
-                                  ToolTip="Потяните, чтобы изменить ширину превью" />
+                                  ToolTip="Потяните, чтобы изменить ширину превью"/>
 
-                    <GroupBox x:Name="PreviewGroup"
-                              Grid.Column="2"
-                              Header="Предпросмотр"
-                              Margin="0,0,0,8"
-                              MouseLeftButtonDown="PreviewGroup_MouseLeftButtonDown"
-                              ToolTip="Двойной клик — развернуть на всё окно">
-                        <Grid>
-                            <Border BorderBrush="#CCC" BorderThickness="1" Background="#F8F8F8">
-                                <Image x:Name="PreviewImage" Stretch="Uniform" Margin="4" />
-                            </Border>
-                            <TextBlock x:Name="PreviewHint"
-                                       Text="Выберите лист, чтобы увидеть превью"
-                                       Foreground="#999"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       TextWrapping="Wrap" />
-                        </Grid>
-                    </GroupBox>
+                    <Border x:Name="PreviewGroup"
+                            Grid.Column="2"
+                            Style="{StaticResource PanelBorderStyle}"
+                            Margin="8,0,0,0"
+                            MouseLeftButtonDown="PreviewGroup_MouseLeftButtonDown"
+                            ToolTip="Двойной клик — развернуть на всё окно">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="Предпросмотр"
+                                       Style="{StaticResource PanelTitleStyle}"/>
+                            <Grid>
+                                <Border BorderBrush="{StaticResource SelectedBrush}"
+                                        BorderThickness="1"
+                                        Background="{StaticResource BgBrush}"
+                                        CornerRadius="8">
+                                    <Image x:Name="PreviewImage" Stretch="Uniform" Margin="4"/>
+                                </Border>
+                                <TextBlock x:Name="PreviewHint"
+                                           Text="Выберите лист, чтобы увидеть превью"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           Margin="12"/>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
                 </Grid>
             </DockPanel>
         </Grid>

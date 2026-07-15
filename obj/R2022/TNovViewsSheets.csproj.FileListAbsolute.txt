@@ -61,3 +61,7 @@ Z:\DEV\_build-test\2022-fix\runtimes\win-x64\native\WebView2Loader.dll
 Z:\DEV\_build-test\2022-fix\TNovViewsSheets.dll
 Z:\DEV\_build-test\2022-fix\TNovViewsSheets.pdb
 \\fs-nova\Distr\0.For Admin\_TNov\build\2022\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build\TNov\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\TNovViewsSheets.dll
+Z:\DEV\_build\TNov\TNovViewsSheets.pdb

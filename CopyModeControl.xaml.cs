@@ -25,12 +25,12 @@ namespace TNovViewsSheets
         private UIDocument _uidoc;
         private Document _doc;
         private ObservableCollection<SheetInfo> _sheets;
-        private ListView _sheetsListView;
+        private DataGrid _sheetsListView;
         Guid NSheetNumberParamGuid = new Guid("b6e73342-b6cd-42c5-86c5-64b04b5b88de"); //N_Ш.НомерЛиста
         Guid adskSheetSetParamGuid = new Guid("e1b06433-f527-403c-8986-af9a01e6be7f"); //A_Комплект чертежей
         string _jsonpath;
 
-        public CopyModeControl(UIDocument uidoc, ObservableCollection<SheetInfo> sheets, ListView sheetsListView)
+        public CopyModeControl(UIDocument uidoc, ObservableCollection<SheetInfo> sheets, DataGrid sheetsListView)
         {
             InitializeComponent();
 

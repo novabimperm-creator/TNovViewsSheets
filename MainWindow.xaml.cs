@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TNovCommon;
 using static System.Windows.Forms.LinkLabel;
@@ -759,22 +760,18 @@ namespace TNovViewsSheets
         // Метод подсветки активной кнопки (исправленный)
         private void HighlightButton(Button activeButton)
         {
-            var buttons = new[] { BtnStart, BtnCreateMode, BtnCreateViewMode, //BtnExportPdfMode,
-                                  //BtnExportSchedulesMode, BtnImportExcelMode, 
-                BtnCopyMode,
-                                  //BtnDuplicateMode, 
-                BtnDeleteMode, BtnSheetNumbering, BtnPhotoView };
+            var buttons = new[] { BtnStart, BtnCreateMode, BtnCreateViewMode,
+                BtnCopyMode, BtnDeleteMode, BtnSheetNumbering, BtnPhotoView };
+            var selectedBrush = (SolidColorBrush)FindResource("SelectedBrush");
 
             foreach (var btn in buttons)
             {
-                btn.ClearValue(Button.BackgroundProperty);
+                btn.Background = Brushes.Transparent;
                 btn.ClearValue(Button.BorderBrushProperty);
                 btn.ClearValue(Button.BorderThicknessProperty);
-                btn.ClearValue(Button.FontWeightProperty);
             }
 
-            activeButton.BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80));
-            activeButton.BorderThickness = new Thickness(0, 0, 0, 3);
+            activeButton.Background = selectedBrush;
         }
 
         private void LvSheets_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1197,9 +1194,10 @@ namespace TNovViewsSheets
             FunctionContent.Content = _createControl; SetFunctionMode(true, false, false, false);
         }
 
-        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (e.ChangedButton == MouseButton.Left)
+                DragMove();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -1210,7 +1208,7 @@ namespace TNovViewsSheets
 
         private void HelpButton_Click(object sender, RoutedEventArgs e)
         {
-            string commandText = @"https://portal.talan.group/knowledge/proektirovanie/listynumeratsiyaikomplektynaeksport/";
+            string commandText = HelpLinks.GetHelpLink("Менеджер листов");
             var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = commandText;
             proc.StartInfo.UseShellExecute = true;

@@ -1,112 +1,124 @@
 ﻿<UserControl x:Class="TNovViewsSheets.ExportPdfControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="Auto" Width="Auto">
+             Background="Transparent">
+
     <UserControl.Resources>
-        <!-- Стиль с полным шаблоном -->
-        <Style x:Key="CustomButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F0F0F0"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <!-- Убираем SystemColors -->
-                        <ControlTemplate.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" 
-                                 Color="Transparent"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" 
-                                 Color="Transparent"/>
-                        </ControlTemplate.Resources>
-
-                        <Border x:Name="border"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="2">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  Margin="{TemplateBinding Padding}"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <!-- Прямое указание цвета -->
-                                <Setter TargetName="border" 
-                            Property="Background" 
-                            Value="#FF008E43"/>
-                                <!-- Цвет заголовка -->
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" 
-                            Property="Background" 
-                            Value="#FF008E43"/>
-                                <!-- Темнее -->
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" 
-                            Property="Opacity" 
-                            Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="5">
-            <GroupBox Header="Опции экспорта" Padding="5">
-                <StackPanel>
-                    <!-- Папка -->
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Папка экспорта:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <TextBox x:Name="TbOutputFolder" Width="300" Margin="5,0"/>
-                        <Button Content="Выбрать" Width="60" Click="BrowseFolder_Click" Style="{StaticResource CustomButtonStyle}"/>
-                    </StackPanel>
+        <StackPanel Margin="12">
+            <TextBlock Text="Экспорт в PDF / DWG"
+                       Style="{StaticResource PanelHeaderStyle}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,12"/>
 
-                    <!-- Формат экспорта -->
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Формат экспорта:" VerticalAlignment="Center"/>
-                        <RadioButton x:Name="RbFormatPdf" Content="PDF" GroupName="ExportFormat" IsChecked="True" Margin="5,0,0,0" Checked="Format_Checked"/>
-                        <RadioButton x:Name="RbFormatDwg" Content="DWG" GroupName="ExportFormat" Margin="5,0,0,0" Checked="Format_Checked"/>
-                    </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Папка экспорта:"
+                           Foreground="{StaticResource MutedBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBox x:Name="TbOutputFolder"
+                         Width="240"
+                         Height="36"
+                         Style="{StaticResource DarkTextBoxStyle}"
+                         Margin="0,0,8,0"/>
+                <Button Content="Выбрать"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Padding="10,6"
+                        Click="BrowseFolder_Click"/>
+            </StackPanel>
 
-                    <!-- Объединение (только для PDF) -->
-                    <CheckBox x:Name="ChkCombine" Content="Объединить все выбранные в один PDF-файл" Margin="0,5"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,5" x:Name="CombineFileNamePanel">
-                        <TextBlock Text="Имя итогового файла:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <TextBox x:Name="TbCombineFileName" Width="200" Text="Имя файла"/>
-                        <TextBlock Text=".pdf" VerticalAlignment="Center" Margin="5,0"/>
-                    </StackPanel>
-                    <!-- Дополнительные параметры (только для PDF) -->
-                    <Expander x:Name="ExpanderOptions" Header="Дополнительные параметры" Margin="0,5">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5">
-                                <TextBlock Text="Масштаб:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <ComboBox x:Name="CbScale" Width="100" SelectedIndex="0">
-                                    <ComboBoxItem Content="По размеру страницы"/>
-                                    <ComboBoxItem Content="100%"/>
-                                    <ComboBoxItem Content="50%"/>
-                                    <ComboBoxItem Content="25%"/>
-                                </ComboBox>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5">
-                                <TextBlock Text="Ориентация:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <RadioButton x:Name="RbPortrait" Content="Книжная" GroupName="Orientation" IsChecked="True"/>
-                                <RadioButton x:Name="RbLandscape" Content="Альбомная" GroupName="Orientation" Margin="10,0,0,0"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Expander>
+            <TextBlock Text="Формат экспорта"
+                       Foreground="{StaticResource MutedBrush}"
+                       FontSize="12"
+                       Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <RadioButton x:Name="RbFormatPdf"
+                             GroupName="ExportFormat"
+                             Style="{StaticResource CardRadioStyle}"
+                             IsChecked="True"
+                             Checked="Format_Checked"
+                             Margin="0,0,8,0">
+                    <TextBlock Text="PDF" Style="{StaticResource CardTitleStyle}"/>
+                </RadioButton>
+                <RadioButton x:Name="RbFormatDwg"
+                             GroupName="ExportFormat"
+                             Style="{StaticResource CardRadioStyle}"
+                             Checked="Format_Checked">
+                    <TextBlock Text="DWG" Style="{StaticResource CardTitleStyle}"/>
+                </RadioButton>
+            </StackPanel>
 
-                    <!-- Кнопка экспорта -->
-                    <Button Content="Экспорт" Width="100" Margin="0,15" HorizontalAlignment="Center" Click="Export_Click" Style="{StaticResource CustomButtonStyle}"/>
+            <ToggleButton x:Name="ChkCombine"
+                          Style="{StaticResource CardToggleStyle}"
+                          Margin="0,0,0,10">
+                <TextBlock Text="Объединить все выбранные в один PDF-файл"
+                           Style="{StaticResource CardTitleStyle}"/>
+            </ToggleButton>
+
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,10"
+                        x:Name="CombineFileNamePanel">
+                <TextBlock Text="Имя итогового файла:"
+                           Foreground="{StaticResource MutedBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBox x:Name="TbCombineFileName"
+                         Width="200"
+                         Height="36"
+                         Style="{StaticResource DarkTextBoxStyle}"
+                         Text="Имя файла"/>
+                <TextBlock Text=".pdf"
+                           Foreground="{StaticResource MutedBrush}"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"/>
+            </StackPanel>
+
+            <Expander x:Name="ExpanderOptions"
+                      Header="Дополнительные параметры"
+                      Foreground="{StaticResource MutedBrush}"
+                      Margin="0,0,0,10">
+                <StackPanel Margin="0,8,0,0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Масштаб:"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <ComboBox x:Name="CbScale"
+                                  Width="160"
+                                  Style="{StaticResource DarkComboBoxStyle}"
+                                  SelectedIndex="0">
+                            <ComboBoxItem Content="По размеру страницы"/>
+                            <ComboBoxItem Content="100%"/>
+                            <ComboBoxItem Content="50%"/>
+                            <ComboBoxItem Content="25%"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="RbPortrait"
+                                     GroupName="Orientation"
+                                     Style="{StaticResource DarkRadioButtonStyle}"
+                                     IsChecked="True"
+                                     Content="Книжная"/>
+                        <RadioButton x:Name="RbLandscape"
+                                     GroupName="Orientation"
+                                     Style="{StaticResource DarkRadioButtonStyle}"
+                                     Content="Альбомная"
+                                     Margin="16,0,0,0"/>
+                    </StackPanel>
                 </StackPanel>
-            </GroupBox>
+            </Expander>
+
+            <Button Content="Экспорт"
+                    Style="{StaticResource RunButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Click="Export_Click"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

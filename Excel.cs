@@ -213,18 +213,11 @@ namespace TNovViewsSheets
                             for (int c = 1; c <= cols; c++)
                             {
                                 Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
-                                if (cell.Value2 != null)
+                                if (TryGetCellText(cell, out string cellText)
+                                    && TryParseScheduleNumber(cellText, out double number))
                                 {
-                                    string cellText = cell.Text.ToString().Trim();
-                                    if (!string.IsNullOrEmpty(cellText))
-                                    {
-                                        // Парсим строку как число с точкой-разделителем
-                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
-                                        {
-                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
-                                            cell.Value2 = number;            // присваиваем настоящее число
-                                        }
-                                    }
+                                    cell.NumberFormat = "General";
+                                    cell.Value2 = number;
                                 }
                             }
                         }
@@ -335,18 +328,11 @@ namespace TNovViewsSheets
                             for (int c = 1; c <= cols; c++)
                             {
                                 Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
-                                if (cell.Value2 != null)
+                                if (TryGetCellText(cell, out string cellText)
+                                    && TryParseScheduleNumber(cellText, out double number))
                                 {
-                                    string cellText = cell.Text.ToString().Trim();
-                                    if (!string.IsNullOrEmpty(cellText))
-                                    {
-                                        // Парсим строку как число с точкой-разделителем
-                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
-                                        {
-                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
-                                            cell.Value2 = number;            // присваиваем настоящее число
-                                        }
-                                    }
+                                    cell.NumberFormat = "General";
+                                    cell.Value2 = number;
                                 }
                             }
                         }
@@ -470,18 +456,11 @@ namespace TNovViewsSheets
                             for (int c = 1; c <= cols; c++)
                             {
                                 Microsoft.Office.Interop.Excel.Range cell = (Microsoft.Office.Interop.Excel.Range)dataRange.Cells[r, c];
-                                if (cell.Value2 != null)
+                                if (TryGetCellText(cell, out string cellText)
+                                    && TryParseScheduleNumber(cellText, out double number))
                                 {
-                                    string cellText = cell.Text.ToString().Trim();
-                                    if (!string.IsNullOrEmpty(cellText))
-                                    {
-                                        // Парсим строку как число с точкой-разделителем
-                                        if (double.TryParse(cellText, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
-                                        {
-                                            cell.NumberFormat = "General";   // сброс формата, чтобы отображалось как число
-                                            cell.Value2 = number;            // присваиваем настоящее число
-                                        }
-                                    }
+                                    cell.NumberFormat = "General";
+                                    cell.Value2 = number;
                                 }
                             }
                         }
@@ -503,6 +482,53 @@ namespace TNovViewsSheets
 
             return Result.Succeeded;
         }
+        /// <summary>
+        /// Разбирает число из ячейки спецификации. Запятая — десятичный разделитель
+        /// (22,23 → 22.23), а не разделитель тысяч инвариантной культуры (иначе 2223).
+        /// </summary>
+        private static bool TryParseScheduleNumber(string text, out double number)
+        {
+            number = 0;
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            string s = text.Trim()
+                .Replace("\u00A0", "")
+                .Replace("\u202F", "")
+                .Replace(" ", "");
+
+            if (s.Length == 0) return false;
+
+            int lastComma = s.LastIndexOf(',');
+            int lastDot = s.LastIndexOf('.');
+
+            if (lastComma >= 0 && lastDot >= 0)
+            {
+                // Оба разделителя: последний — дробная часть, остальные — разряды.
+                if (lastComma > lastDot)
+                    s = s.Replace(".", "").Replace(',', '.');
+                else
+                    s = s.Replace(",", "");
+            }
+            else if (lastComma >= 0)
+            {
+                s = s.Replace(',', '.');
+            }
+
+            return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out number);
+        }
+
+        private static bool TryGetCellText(Microsoft.Office.Interop.Excel.Range cell, out string cellText)
+        {
+            cellText = null;
+            object value = cell.Value2;
+            if (value == null) return false;
+            if (value is double || value is float || value is decimal || value is int || value is long)
+                return false;
+
+            cellText = Convert.ToString(value)?.Trim();
+            return !string.IsNullOrEmpty(cellText);
+        }
+
         private static Microsoft.Office.Interop.Excel.Application GetActiveExcelApplication()
         {
             Guid clsid;

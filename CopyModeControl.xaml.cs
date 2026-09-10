@@ -19,6 +19,7 @@ namespace TNovViewsSheets
     {
         public bool CopySchedules;
         public bool CopyLegends;
+        public bool? CopyFamilies;
     }
     public partial class CopyModeControl : UserControl
     {
@@ -51,6 +52,7 @@ namespace TNovViewsSheets
 
             copySchedules.IsChecked = settings.CopySchedules;
             copyLegends.IsChecked = settings.CopyLegends;
+            copyFamilies.IsChecked = settings.CopyFamilies ?? true;
         }
 
         private void CopySheet_Click(object sender, RoutedEventArgs e)
@@ -223,7 +225,11 @@ namespace TNovViewsSheets
                         Logger.Log($"Скопирована легенда {view.Name}", 1);
                     }
                 }
-                    
+
+                if (copyFamilies.IsChecked == true)
+                {
+                    CopySheetFamilies(sourceSheet, newSheet);
+                }
 
                 trans.Commit();
             }
@@ -236,7 +242,12 @@ namespace TNovViewsSheets
             Logger.Log("Завершение работы.",5);
 
             //Сериализация
-            var settings = new CopyModeSettings() { CopySchedules = (bool)copySchedules.IsChecked, CopyLegends = (bool)copyLegends.IsChecked };
+            var settings = new CopyModeSettings()
+            {
+                CopySchedules = (bool)copySchedules.IsChecked,
+                CopyLegends = (bool)copyLegends.IsChecked,
+                CopyFamilies = (bool)copyFamilies.IsChecked
+            };
             try
             {
                 File.WriteAllText(_jsonpath, JsonConvert.SerializeObject(settings));
@@ -301,7 +312,7 @@ namespace TNovViewsSheets
             {
                 "Книжный","А","Девятиграфка","1.Должность","2.Должность","3.Должность","4.Должность",
                 "1.Подпись","2.Подпись","3.Подпись","4.Подпись",
-                "1.Подпись.Видимость","2.Подпись.Видимость","3.Подпись.Видимость","4.Подпись.Видимость",
+                "1.Подпись.Видимость","2.Подпись.Видимость","3.Подпись.Видимость","4.Подпись.Видимость","5.Подпись.Видимость",
                 "Дата утверждения листа"
             };
 
@@ -381,6 +392,37 @@ namespace TNovViewsSheets
             Logger.Log($"Параметр {paramname} отсутствует у первого или второго элемента", 2);
             return false;
         }
+        private void CopySheetFamilies(ViewSheet sourceSheet, ViewSheet newSheet)
+        {
+            ElementFilter filter = new ElementClassFilter(typeof(FamilyInstance));
+            ICollection<ElementId> dependentIds = sourceSheet.GetDependentElements(filter);
+
+            var idsToCopy = new List<ElementId>();
+            foreach (ElementId id in dependentIds)
+            {
+                if (!(_doc.GetElement(id) is FamilyInstance instance)) continue;
+                if (!RevitApiCompat.IsTopLevelFamilyInstance(instance)) continue;
+
+                if (instance.Category != null &&
+                    RevitApiCompat.ElementIdIntValue(instance.Category.Id) == (int)BuiltInCategory.OST_TitleBlocks)
+                    continue;
+
+                idsToCopy.Add(id);
+            }
+
+            if (idsToCopy.Count == 0) return;
+
+            try
+            {
+                ElementTransformUtils.CopyElements(sourceSheet, idsToCopy, newSheet, Transform.Identity, new CopyPasteOptions());
+                Logger.Log($"Скопировано семейств на листе: {idsToCopy.Count}", 1);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Ошибка копирования семейств: {ex.Message}", 4);
+            }
+        }
+
         private ICollection<FamilyInstance> GetTitleBlocksOnSheet(ViewSheet sheet)
         {
             if (sheet == null)

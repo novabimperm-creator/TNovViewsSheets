@@ -82,8 +82,17 @@
             <ToggleButton x:Name="copyLegends"
                           Style="{StaticResource CardToggleStyle}"
                           HorizontalAlignment="Stretch"
-                          Margin="0,0,0,16">
+                          Margin="0,0,0,6">
                 <TextBlock Text="Копировать легенды (без дублирования легенд в проекте)"
+                           Style="{StaticResource CardTitleStyle}"
+                           TextWrapping="Wrap"/>
+            </ToggleButton>
+            <ToggleButton x:Name="copyFamilies"
+                          IsChecked="True"
+                          Style="{StaticResource CardToggleStyle}"
+                          HorizontalAlignment="Stretch"
+                          Margin="0,0,0,16">
+                <TextBlock Text="Копировать семейства на листе"
                            Style="{StaticResource CardTitleStyle}"
                            TextWrapping="Wrap"/>
             </ToggleButton>

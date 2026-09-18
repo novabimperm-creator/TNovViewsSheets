@@ -1,0 +1,111 @@
+<UserControl x:Class="TNovViewsSheets.ChangesRevisionsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="WrapCellTextStyle" TargetType="TextBlock" BasedOn="{StaticResource DarkDataGridTextElementStyle}">
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="WrapCellEditStyle" TargetType="TextBox">
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="AcceptsReturn" Value="True"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="2,0"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Изменения проекта"
+                   Style="{StaticResource PanelHeaderStyle}"
+                   HorizontalAlignment="Left"
+                   Margin="0,0,0,8"/>
+
+        <DockPanel Grid.Row="1" Margin="0,0,0,8" LastChildFill="False">
+            <TextBlock Text="{Binding NumberingText, StringFormat=Нумерация: {0}}"
+                       Foreground="{StaticResource MutedBrush}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,16,0"/>
+            <Button Content="Создать"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,6,0"
+                    Click="Create_Click"/>
+            <Button Content="Удалить"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,6,0"
+                    Click="Delete_Click"/>
+            <Button Content="Вверх"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,6,0"
+                    Click="MoveUp_Click"/>
+            <Button Content="Вниз"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Click="MoveDown_Click"/>
+        </DockPanel>
+
+        <DataGrid x:Name="RevisionsGrid"
+                  Grid.Row="2"
+                  ItemsSource="{Binding Revisions}"
+                  SelectedItem="{Binding SelectedRevision}"
+                  Style="{StaticResource DarkDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeaderStyle}"
+                  CellStyle="{StaticResource DarkDataGridCellStyle}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  CellEditEnding="RevisionsGrid_CellEditEnding">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Кому" Width="140">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox Style="{StaticResource DarkGridComboBoxStyle}"
+                                      ItemsSource="{Binding DataContext.SheetSets, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      SelectedItem="{Binding IssuedTo, UpdateSourceTrigger=PropertyChanged}"
+                                      VerticalAlignment="Center"
+                                      SelectionChanged="IssuedToCombo_SelectionChanged"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Номер" Binding="{Binding Description, UpdateSourceTrigger=LostFocus}" Width="90"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"
+                                    EditingElementStyle="{StaticResource WrapCellEditStyle}"/>
+                <DataGridTextColumn Header="Дата" Binding="{Binding RevisionDate, UpdateSourceTrigger=LostFocus}" Width="90"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"
+                                    EditingElementStyle="{StaticResource WrapCellEditStyle}"/>
+                <DataGridTextColumn Header="Номер изменения" Binding="{Binding IssuedBy, UpdateSourceTrigger=LostFocus}" Width="120"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"
+                                    EditingElementStyle="{StaticResource WrapCellEditStyle}"/>
+                <DataGridTextColumn Header="Листов" Binding="{Binding SheetCount}" Width="64" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+                <DataGridTextColumn Header="Облаков" Binding="{Binding CloudCount}" Width="72" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

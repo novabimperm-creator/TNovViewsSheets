@@ -71,14 +71,14 @@
             <ListView x:Name="ItemsListView" Grid.Row="4" AllowDrop="True"
                       PreviewMouseLeftButtonDown="ListView_PreviewMouseLeftButtonDown"
                       Drop="ListView_Drop" DragOver="ListView_DragOver"
-                      Background="Transparent" BorderThickness="0" Foreground="White" Margin="0,0,0,12">
+                      Background="Transparent" BorderThickness="0" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Номер" Width="60" DisplayMemberBinding="{Binding TNovSheetNumericNumber}"/>
                         <GridViewColumn Header="Имя листа" Width="420">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding TNovSheetName}" Foreground="White" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding TNovSheetName}" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -88,7 +88,7 @@
                     <Style TargetType="ListViewItem">
                         <Setter Property="VerticalContentAlignment" Value="Top"/>
                         <Setter Property="Height" Value="Auto"/>
-                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
                         <Setter Property="Background" Value="Transparent"/>
                     </Style>
                 </ListView.ItemContainerStyle>

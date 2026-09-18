@@ -1,0 +1,139 @@
+<UserControl x:Class="TNovViewsSheets.ChangesSheetsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TNovCommon;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="WrapCellTextStyle" TargetType="TextBlock" BasedOn="{StaticResource DarkDataGridTextElementStyle}">
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Листы по комплектам"
+                   Style="{StaticResource PanelHeaderStyle}"
+                   HorizontalAlignment="Left"
+                   Margin="0,0,0,8"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Комплект:"
+                       Foreground="{StaticResource MutedBrush}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <ComboBox Grid.Column="1"
+                      Style="{StaticResource DarkComboBoxStyle}"
+                      ItemsSource="{Binding SheetSets}"
+                      SelectedItem="{Binding FilterSet}"
+                      HorizontalAlignment="Stretch"/>
+            <TextBlock Grid.Column="3"
+                       Text="Изменение:"
+                       Foreground="{StaticResource MutedBrush}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <ComboBox Grid.Column="4"
+                      Style="{StaticResource DarkComboBoxStyle}"
+                      ItemsSource="{Binding WorkingRevisions}"
+                      SelectedItem="{Binding SelectedRevision}"
+                      DisplayMemberPath="ListCaption"
+                      IsEnabled="{Binding HasWorkingSet}"
+                      HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <WrapPanel Grid.Row="2" Margin="0,0,0,8">
+            <Button Content="Обновить листы"
+                    Style="{StaticResource RunButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,8,6"
+                    IsEnabled="{Binding HasWorkingSet}"
+                    ToolTip="Записывает штамп на отмеченные листы. С неотмеченных выбранное изменение снимается: галочка в свойствах листа и облака этого изменения."
+                    Click="ApplyStamp_Click"/>
+            <Button Content="Отметить все"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,8,6"
+                    Click="SelectAll_Click"/>
+            <Button Content="Снять все"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Padding="10,6"
+                    MinHeight="32"
+                    Margin="0,0,8,6"
+                    Click="DeselectAll_Click"/>
+        </WrapPanel>
+
+        <DataGrid x:Name="SheetsGrid"
+                  Grid.Row="3"
+                  ItemsSource="{Binding FilteredSheets}"
+                  SelectedItem="{Binding SelectedSheet}"
+                  Style="{StaticResource DarkDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeaderStyle}"
+                  CellStyle="{StaticResource DarkDataGridCellStyle}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  SelectionMode="Extended"
+                  SelectionUnit="FullRow"
+                  EnableRowVirtualization="False"
+                  VirtualizingPanel.IsVirtualizing="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36"/>
+                <DataGridTextColumn Header="Номер" Binding="{Binding SheetNumber}" Width="70" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="*" MinWidth="80" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+                <DataGridTemplateColumn Header="Изм.Содержание изменения" Width="220">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True"
+                                      Style="{StaticResource DarkGridComboBoxStyle}"
+                                      ItemsSource="{Binding DataContext.ContentSuggestions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="False"
+                                      StaysOpenOnEdit="True"
+                                      VerticalAlignment="Center"
+                                      DropDownOpened="ContentCombo_DropDownOpened"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Кол.уч." Binding="{Binding CountText}" Width="70" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+                <DataGridTemplateColumn Header="Лист" Width="108">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox Style="{StaticResource DarkGridComboBoxStyle}"
+                                      ItemsSource="{Binding DataContext.ListTextOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      SelectedItem="{Binding ListText, UpdateSourceTrigger=PropertyChanged}"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      SelectionChanged="ListCombo_SelectionChanged"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Изм.Группа листов" Binding="{Binding Group}" Width="120" IsReadOnly="True"
+                                    ElementStyle="{StaticResource WrapCellTextStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -87,7 +87,7 @@
                       DragOver="ListView_DragOver"
                       Background="Transparent"
                       BorderThickness="0"
-                      Foreground="White">
+                      Foreground="{StaticResource PrimaryTextBrush}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Номер" Width="60" DisplayMemberBinding="{Binding TNovSheetNumericNumber}"/>
@@ -95,7 +95,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding TNovSheetName}"
-                                               Foreground="White"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Top"/>
                                 </DataTemplate>
@@ -107,7 +107,7 @@
                     <Style TargetType="ListViewItem">
                         <Setter Property="VerticalContentAlignment" Value="Top"/>
                         <Setter Property="Height" Value="Auto"/>
-                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
                         <Setter Property="Background" Value="Transparent"/>
                     </Style>
                 </ListView.ItemContainerStyle>

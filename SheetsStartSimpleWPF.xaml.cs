@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
+using TNovCommon;
+
 namespace TNovViewsSheets
 {
     public partial class SheetsStartSimpleWPF : Window
@@ -33,7 +35,7 @@ namespace TNovViewsSheets
 
         private void HelpButton_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("https://portal.talan.group/knowledge/proektirovanie/listynumeratsiyaikomplektynaeksport/") { UseShellExecute = true });
+            HelpLinks.ShowHelp("Менеджер листов");
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

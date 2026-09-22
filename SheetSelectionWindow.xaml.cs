@@ -523,11 +523,7 @@ namespace TNovViewsSheets
 
         private void HelpButton_Click(object sender, RoutedEventArgs e)
         {
-            string commandText = @"https://portal.talan.group/knowledge/proektirovanie/eksportpdfidwgizrevit/";
-            var proc = new System.Diagnostics.Process();
-            proc.StartInfo.FileName = commandText;
-            proc.StartInfo.UseShellExecute = true;
-            proc.Start();
+            HelpLinks.ShowHelp("Экспорт листов");
         }
 
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
